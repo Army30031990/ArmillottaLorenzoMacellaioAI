@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tagli di Carne Bovina Interattivi</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            padding-bottom: 100px; /* Spazio in basso per il footer */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .image-container {
+            position: relative;
+            width: 900px; /* Larghezza immagine riferimento */
+            height: 598px; /* Altezza immagine riferimento */
+            margin: 20px auto;
+            background-image: url('https://www.dropbox.com/scl/fi/r3gd2iexyl9mm9r3z3ikc/Bovino.png?rlkey=s2vdvwypjduzxvmx5wtst51kk&st=emkucju6&dl=1');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 1px solid #ccc;
+        }
+
+        .cut-label {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(0, 0, 0, 0.6);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            white-space: nowrap;
+            text-align: center;
+            color: #000;
+            transform-origin: center center;
+            box-sizing: border-box;
+        }
+
+        .cut-label:hover {
+            background-color: rgba(255, 255, 0, 0.85);
+            transform: scale(1.05);
+        }
+
+        /* --- Posizionamento e Ridimensionamento dei Label --- */
+        #label-collo { top: 39%; left: 23%; }
+        #label-reale { top: 21%; left: 31%; }
+        #label-punta-di-petto { top: 54%; left: 19%; font-size: 10px; padding: 2px 4px; }
+        #label-spalla { top: 55%; left: 31%; }
+        #label-giretto-di-spalla { top: 38%; left: 32%; transform: rotate(-45deg); font-size: 9px; padding: 2px 3px; }
+        #label-copertina { top: 37%; left: 39%; transform: rotate(-45deg); font-size: 10px; padding: 2px 4px; }
+        #label-fesone-di-spalla { top: 40%; left: 43%; transform: rotate(-45deg); font-size: 9px; padding: 2px 3px; }
+        #label-petto { top: 53%; left: 42%; }
+        #label-garetto-anteriore { top: 66%; left: 26%; font-size: 9px; padding: 2px 3px; }
+        #label-braciola-reale { top: 19%; left: 41%; font-size: 10px; padding: 2px 4px; }
+        #label-lombata { top: 17%; left: 59%; }
+        #label-filetto { top: 23%; left: 68%; border-style: dashed;}
+        #label-taglio-reale { top: 32%; left: 60%; }
+        #label-pancia { top: 47%; left: 59%; }
+        #label-scamone { top: 16%; left: 77%; }
+        #label-fiocco { top: 27%; left: 75%; } /* Spinacino */
+        #label-fesa { top: 31%; left: 85%; border-style: dashed; }
+        #label-noce { top: 37%; left: 78%; }
+        #label-fesa-interna { top: 45%; left: 84%; font-size: 10px; padding: 2px 4px; } /* Sottofesa */
+        #label-girello { top: 40%; left: 92.5%; transform: rotate(-75deg); font-size: 10px; padding: 2px 4px;}
+        #label-pesce { top: 55%; left: 88%; }
+        #label-ossobuco { top: 64%; left: 87%; font-size: 10px; padding: 2px 4px; }
+
+
+        /* --- Box Informazioni --- */
+        #info-box {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-color: white;
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        #info-box.visible {
+            display: block;
+        }
+
+        #info-box h3 {
+            margin-top: 0;
+            color: #8B4513;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        #info-box h4 {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        #info-box p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        #recipe-select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #fff;
+            font-size: 14px;
+        }
+
+        #recipe-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+         #recipe-details h4 { margin-top: 0; color: #666; }
+         #recipe-details p { font-size: 14px; }
+
+        #close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #ddd;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 4px;
+            line-height: 1;
+        }
+         #close-button:hover { background: #ccc; }
+        
+        /* ===== NUOVI STILI PER CHAT AI INTERATTIVA ===== */
+        #ai-feature-box {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 2px dashed #8B4513;
+        }
+
+        #ai-question-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            min-height: 60px;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        #ai-ask-button {
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #ai-ask-button:hover {
+            background-color: #A0522D;
+        }
+
+        #ai-ask-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #ai-response-container {
+            margin-top: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        #ai-response-container.hidden { display: none; }
+        #ai-response-container .loading { font-style: italic; color: #888; text-align: center; }
+        #ai-response-container ul { padding-left: 20px; margin-top: 0; }
+        #ai-response-container strong.chef-name { color: #8B4513; }
+        /* ===== FINE NUOVI STILI ===== */
+
+        /* --- Stili Footer e Modal --- */
+        #footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ccc; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        #footer img#footer-logo { max-width: 60px; height: auto; vertical-align: middle; cursor: pointer; }
+        #footer p { font-size: 12px; color: #555; margin: 0; }
+        #logo-modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+        #modal-logo-img { display: block; max-width: 90%; max-height: 90%; margin: auto; }
+        #close-modal-button { position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; transition: 0.3s; cursor: pointer; text-decoration: none; }
+        #close-modal-button:hover, #close-modal-button:focus { color: #bbb; }
+
+    </style>
+</head>
+<body>
+
+    <h1>Tagli di Carne Bovina - Clicca su un taglio!</h1>
+
+    <div class="image-container">
+        <!-- Labels posizionati sopra l'immagine -->
+        <span class="cut-label" id="label-collo" data-cut="collo">COLLO</span>
+        <span class="cut-label" id="label-reale" data-cut="reale">REALE</span>
+        <span class="cut-label" id="label-punta-di-petto" data-cut="punta_di_petto">PUNTA DI PETTO</span>
+        <span class="cut-label" id="label-spalla" data-cut="spalla">SPALLA</span>
+        <span class="cut-label" id="label-giretto-di-spalla" data-cut="giretto_di_spalla">GIRELLO DI SPALLA</span>
+        <span class="cut-label" id="label-copertina" data-cut="copertina">COPERTINA</span>
+        <span class="cut-label" id="label-fesone-di-spalla" data-cut="fesone_di_spalla">FESONE DI SPALLA</span>
+        <span class="cut-label" id="label-petto" data-cut="petto">PETTO</span>
+        <span class="cut-label" id="label-garetto-anteriore" data-cut="garetto_anteriore">GARETTO ANTERIORE</span>
+        <span class="cut-label" id="label-braciola-reale" data-cut="braciola_reale">BRACIOLA REALE</span>
+        <span class="cut-label" id="label-lombata" data-cut="lombata">LOMBATA</span>
+        <span class="cut-label" id="label-filetto" data-cut="filetto">FILETTO</span>
+        <span class="cut-label" id="label-taglio-reale" data-cut="taglio_reale">TAGLIO REALE</span>
+        <span class="cut-label" id="label-pancia" data-cut="pancia">PANCIA</span>
+        <span class="cut-label" id="label-scamone" data-cut="scamone">SCAMONE</span>
+        <span class="cut-label" id="label-fiocco" data-cut="fiocco">SPINACINO</span>
+        <span class="cut-label" id="label-fesa" data-cut="fesa">FESA</span>
+        <span class="cut-label" id="label-noce" data-cut="noce">NOCE</span>
+        <span class="cut-label" id="label-fesa-interna" data-cut="fesa_interna">SOTTOFESA</span>
+        <span class="cut-label" id="label-girello" data-cut="girello">GIRELLO</span>
+        <span class="cut-label" id="label-pesce" data-cut="pesce">PESCE</span>
+        <span class="cut-label" id="label-ossobuco" data-cut="ossobuco">OSSOBUCO</span>
+    </div>
+
+    <!-- Box per mostrare le informazioni sul taglio -->
+    <div id="info-box">
+        <button id="close-button" title="Chiudi">&times;</button>
+        <h3 id="info-title">Nome Taglio</h3>
+        <h4>Uso Consigliato:</h4>
+        <p id="info-usage">Descrizione dell'uso migliore...</p>
+        
+        <h4>Ricette Disponibili:</h4>
+        <select id="recipe-select"></select>
+        <div id="recipe-details"></div>
+
+        <!-- ===== SEZIONE CHAT INTERATTIVA AI (MODIFICATA) ===== -->
+        <div id="ai-feature-box">
+            <h4>Parla con lo Chef Lorenzo (AI)</h4>
+            <textarea id="ai-question-input" placeholder="Scrivi qui la tua domanda... Es: 'Come posso rendere questo taglio più tenero?' o 'Che vino abbino?'"></textarea>
+            <button id="ai-ask-button">Chiedi a Lorenzo</button>
+            <div id="ai-response-container" class="hidden">
+                <!-- La risposta dell'AI apparirà qui -->
+            </div>
+        </div>
+        <!-- ===== FINE SEZIONE ===== -->
+    </div>
+
+    <!-- ***** FOOTER & MODAL ***** -->
+    <div id="footer">
+        <img id="footer-logo" src="https://www.dropbox.com/scl/fi/u4e0j2zkce96z33iqxnho/1745649177877.jpg?rlkey=gcpduovbd7wazbcqx3pqlmu1h&st=ud3qgnhe&dl=1" alt="Logo Armillotta Lorenzo" title="Clicca per ingrandire">
+        <p>Questa web app è stata realizzata da Armillotta Lorenzo.</p>
+    </div>
+    <div id="logo-modal">
+        <span id="close-modal-button" title="Chiudi">&times;</span>
+        <img id="modal-logo-img" src="https://www.dropbox.com/scl/fi/u4e0j2zkce96z33iqxnho/1745649177877.jpg?rlkey=gcpduovbd7wazbcqx3pqlmu1h&st=ud3qgnhe&dl=1" alt="Logo Armillotta Lorenzo - Ingrandito">
+    </div>
+
+
+    <script>
+        // *** STRUTTURA DATI (INVARIATA) ***
+        const cutData = {
+            collo: {
+                usage: "Ideale per cotture lunghe e umide come bolliti, stracotti, spezzatini e ragù. Diventa tenerissimo.",
+                recipes: [
+                    {
+                        title: "Spezzatino Classico",
+                        details: `
+                            <h4>Spezzatino di Collo</h4>
+                            <p><strong>Ingredienti:</strong> 800g collo a cubetti, 1 cipolla, 2 carote, 2 coste sedano, 2 cucchiai concentrato pomodoro, 500ml brodo, 1 bicchiere vino rosso, farina, olio EVO, sale, pepe.</p>
+                            <p><strong>Preparazione:</strong> Infarinare la carne. Soffriggere verdure tritate. Aggiungere carne e rosolare. Sfumare col vino. Aggiungere concentrato, brodo, sale, pepe. Coprire e cuocere a fuoco basso per almeno 2 ore. Servire con polenta.</p>
+                        `
+                    },
+                    {
+                        title: "Bollito Saporito",
+                        details: `
+                            <h4>Bollito di Collo</h4>
+                            <p><strong>Ingredienti:</strong> 1kg collo intero, 2 carote, 2 coste sedano, 1 cipolla, chiodi di garofano, grani pepe, sale grosso, acqua.</p>
+                            <p><strong>Preparazione:</strong> Mettere carne e verdure in acqua fredda. Portare a ebollizione, schiumare. Salare e cuocere a fuoco lento per circa 3 ore. Servire caldo con salse.</p>
+                        `
+                    },
+                    {
+                        title: "Ragù Ricco",
+                        details: `
+                            <h4>Ragù di Collo</h4>
+                            <p><strong>Ingredienti:</strong> 600g collo macinato, 1 cipolla, 1 carota, 1 costa sedano, 1 bicchiere vino rosso, 400g passata pomodoro, olio, sale, pepe.</p>
+                            <p><strong>Preparazione:</strong> Soffriggere verdure tritate. Aggiungere macinato e rosolare. Sfumare col vino. Aggiungere passata, sale, pepe. Cuocere a fuoco basso per almeno 2 ore.</p>
+                        `
+                    }
+                ]
+            },
+            reale: {
+                usage: "Versatile per bistecche, arrosti, spezzatini e macinato.",
+                recipes: [
+                    {
+                        title: "Arrosto di Reale",
+                        details: `
+                            <h4>Arrosto di Reale</h4>
+                            <p><strong>Ingredienti:</strong> 1kg reale intero, aglio, rosmarino, salvia, 1 bicchiere vino bianco, olio, sale, pepe.</p>
+                            <p><strong>Preparazione:</strong> Massaggiare carne con aromi. Rosolare bene in casseruola. Sfumare col vino. In forno a 180°C per circa 1 ora. Riposare prima di affettare.</p>
+                        `
+                    },
+                    {
+                        title: "Bistecche di Reale Grigliate",
+                        details: `
+                            <h4>Bistecche di Reale Grigliate</h4>
+                            <p><strong>Ingredienti:</strong> 2 bistecche di reale (alte 2-3 cm), olio EVO, sale grosso, pepe, rosmarino.</p>
+                            <p><strong>Preparazione:</strong> Scaldare bene la griglia. Spennellare carne con olio. Grigliare 3-6 min per lato (dipende dalla cottura). Salare e pepare alla fine. Servire subito.</p>
+                        `
+                    },
+                    {
+                        title: "Spezzatino di Reale con Funghi",
+                        details: `
+                            <h4>Spezzatino di Reale con Funghi</h4>
+                            <p><strong>Ingredienti:</strong> 700g reale a cubetti, 300g funghi champignon, cipolla, brodo, vino bianco, prezzemolo, olio, sale, pepe.</p>
+                            <p><strong>Preparazione:</strong> Rosolare carne. Togliere e soffriggere cipolla. Rimettere carne, sfumare vino. Aggiungere funghi e brodo. Cuocere 1.5 ore. Guarnire con prezzemolo.</p>
+                        `
+                    }
+                ]
+            },
+            braciola_reale: {
+                usage: "Bistecche con o senza osso per griglia, padella o cotture in umido brevi.",
+                recipes: [
+                     {
+                        title: "Braciola in Padella",
+                        details: `
+                            <h4>Braciola Reale in Padella</h4>
+                            <p><strong>Ingredienti:</strong> 2 braciole reali, 1 spicchio aglio, rosmarino, olio EVO, sale grosso, pepe.</p>
+                            <p><strong>Preparazione:</strong> Scaldare bene padella con olio, aglio, rosmarino. Cuocere braciole 3-5 min per lato. Salare grosso e pepare alla fine. Servire subito.</p>
+                        `
+                    },
+                    {
+                        title: "Braciola alla Pizzaiola",
+                        details: `
+                            <h4>Braciola Reale alla Pizzaiola</h4>
+                             <p><strong>Ingredienti:</strong> 2 braciole reali, 200g polpa pomodoro, origano, aglio, olio, sale, pepe.</p>
+                            <p><strong>Preparazione:</strong> Rosolare braciole in olio e aglio. Aggiungere pomodoro, origano, sale, pepe. Coprire e cuocere a fuoco basso 15-20 min.</p>
+                        `
+                    },
+                    {
+                        title: "Braciola Impanata",
+                        details: `
+                            <h4>Braciola Reale Impanata</h4>
+                            <p><strong>Ingredienti:</strong> 2 braciole reali, 1 uovo, pangrattato, sale, olio per friggere.</p>
+                            <p><strong>Preparazione:</strong> Battere leggermente le braciole. Passare nell'uovo sbattuto e poi nel pangrattato. Friggere in olio caldo finché dorate.</p>
+                        `
+                    }
+                ]
+            },
+             punta_di_petto: {
+                usage: "Ottimo per bollito, brodo, brasati lunghi (Brisket BBQ).",
+                 recipes: [
+                    {
+                        title: "Bollito Classico",
+                        details: `
+                            <h4>Bollito Classico di Punta di Petto</h4>
+                            <p><strong>Ingredienti:</strong> 1kg punta di petto, 2 carote, 2 coste sedano, 1 cipolla, chiodi garofano, grani pepe, sale grosso, acqua.</p>
+                            <p><strong>Preparazione:</strong> Mettere carne e verdure in acqua fredda. Portare a ebollizione, schiumare. Salare e cuocere lentamente per circa 3-4 ore. Servire caldo.</p>
+                        `
+                    },
+                    {
+                        title: "Brasato Lento",
+                        details: `
+                            <h4>Brasato Lento di Punta di Petto</h4>
+                            <p><strong>Ingredienti:</strong> 1.5kg punta di petto, cipolle, carote, sedano, vino rosso, brodo, concentrato pomodoro, aromi (alloro, rosmarino).</p>
+                            <p><strong>Preparazione:</strong> Rosolare carne. Soffriggere verdure tritate. Rimettere carne, sfumare vino. Aggiungere brodo, concentrato, aromi. Coprire e cuocere a fuoco bassissimo (o in forno lento) per 4-6 ore.</p>
+                        `
+                    },
+                    {
+                        title: "Punta di Petto Affumicata (Brisket)",
+                        details: `
+                            <h4>Punta di Petto Affumicata (Brisket - Stile BBQ)</h4>
+                            <p><strong>Ingredienti:</strong> Punta di petto intera, rub secco (sale, pepe, paprika, aglio in polvere, etc.), legna da affumicatura.</p>
+                            <p><strong>Preparazione:</strong> Applicare il rub sulla carne. Affumicare a bassa temperatura (110-120°C) per molte ore (8-12+ ore) finché la carne è tenerissima (temperatura interna circa 90-95°C). Richiede smoker o BBQ adatto.</p>
+                        `
+                    }
+                ]
+            },
+             spalla: {
+                usage: "Per spezzatini, brasati, arrosti arrotolati, goulash, macinato.",
+                 recipes: [
+                    {
+                        title: "Brasato al Vino Rosso",
+                        details: `
+                            <h4>Brasato di Spalla al Vino Rosso</h4>
+                            <p><strong>Ingredienti:</strong> 1.2kg spalla legata, 1 bottiglia vino rosso, verdure (carota, sedano, cipolla), aglio, aromi, olio, burro, sale, pepe.</p>
+                            <p><strong>Preparazione:</strong> Marinare carne nel vino e verdure 12-24h. Scolare, asciugare, rosolare carne. Soffriggere verdure tritate. Rimettere carne, aggiungere marinata filtrata. Coprire e cuocere 3-4 ore. Frullare fondo per salsa.</p>
+                        `
+                    },
+                    {
+                        title: "Goulash Ungherese",
+                        details: `
+                            <h4>Goulash Ungherese con Spalla</h4>
+                            <p><strong>Ingredienti:</strong> 1kg spalla a cubetti, 2 cipolle grandi, paprika dolce (tanta!), cumino, maggiorana, brodo, patate (opz.), olio, sale.</p>
+                            <p><strong>Preparazione:</strong> Soffriggere cipolle. Togliere dal fuoco, aggiungere paprika e carne, mescolare. Rimettere sul fuoco, rosolare. Aggiungere spezie, sale, brodo a coprire. Cuocere 2 ore. Aggiungere patate (se usate) e cuocere altri 30 min.</p>
+                        `
+                    },
+                    {
+                        title: "Arrosto Arrotolato di Spalla",
+                        details: `
+                            <h4>Arrosto Arrotolato di Spalla</h4>
+                            <p><strong>Ingredienti:</strong> 1 fetta grande di spalla (ca. 1kg), ripieno a piacere (es. spinaci e formaggio; prosciutto e frittata), spago, olio, aromi, vino bianco.</p>
+                            <p><strong>Preparazione:</strong> Stendere carne, farcire, arrotolare e legare. Rosolare in olio e aromi. Sfumare vino. Cuocere in forno a 180°C per 1-1.5 ore.</p>
+                        `
+                    }
+                ]
+            },
+            giretto_di_spalla: {
+                 usage: "Conosciuto anche come 'Fusello'. Tenero e magro, ottimo per arrosti, fettine sottili (scaloppine, involtini), vitello tonnato (se di vitello) o roast-beef.",
+                 recipes: [
+                     {
+                        title: "Arrosto di Giretto di Spalla",
+                        details: `<h4>Arrosto di Giretto di Spalla</h4><p><strong>Ingredienti:</strong> 800g giretto di spalla, rosmarino, salvia, aglio, olio EVO, sale, pepe, poco vino bianco.</p> <p><strong>Preparazione:</strong> Legare la carne se necessario. Rosolarla uniformemente in una casseruola con olio, aglio ed erbe. Salare e pepare. Sfumare con poco vino bianco. Trasferire in forno a 180°C per 40-50 minuti (cottura rosata al centro). Far riposare prima di affettare.</p>`
+                    },
+                    {
+                        title: "Scaloppine di Giretto",
+                        details: `<h4>Scaloppine di Giretto di Spalla</h4><p><strong>Ingredienti:</strong> 4 fettine sottili di giretto, farina, burro, vino bianco o limone, sale, pepe.</p><p><strong>Preparazione:</strong> Infarinare le fettine. Sciogliere burro in padella, cuocere le fettine velocemente. Salare e pepare. Togliere la carne, sfumare il fondo con vino bianco o succo di limone. Nappare le fettine.</p>`
+                    },
+                    {
+                        title: "Involtini di Giretto",
+                        details: `<h4>Involtini di Giretto di Spalla</h4><p><strong>Ingredienti:</strong> 6 fettine sottili di giretto, 6 fette prosciutto cotto, 6 fettine formaggio filante, salvia, burro, vino bianco, sale, pepe.</p><p><strong>Preparazione:</strong> Stendere le fettine, sovrapporre prosciutto e formaggio. Arrotolare e fermare con stecchino e salvia. Rosolare nel burro, sfumare con vino, salare, pepare. Cuocere brevemente coperto.</p>`
+                    }
+                ]
+             },
+             copertina: {
+                 usage: "Taglio saporito, ideale per bolliti, stracotti, spezzatini. Diventa molto tenero con cotture lunghe e umide.",
+                 recipes: [
+                     {
+                        title: "Spezzatino con Patate",
+                        details: `<h4>Spezzatino con Patate (usando Copertina)</h4> <p><strong>Ingredienti:</strong> 700g copertina a cubetti, 500g patate, 1 cipolla, 1 carota, 1 costa sedano, brodo di carne q.b., passata pomodoro (poca), olio EVO, sale, pepe.</p> <p><strong>Preparazione:</strong> Soffriggere trito di cipolla, carota, sedano. Aggiungere la carne e rosolare. Salare e pepare. Aggiungere un po' di passata e coprire a filo con brodo. Cuocere coperto per 1.5 ore. Aggiungere le patate a cubetti e cuocere per altri 30-40 min, finché carne e patate sono tenere.</p>`
+                    },
+                    {
+                        title: "Stracotto di Copertina",
+                        details: `<h4>Stracotto di Copertina al Vino Rosso</h4><p><strong>Ingredienti:</strong> 1kg copertina (pezzo unico), 1 bottiglia vino rosso, carota, sedano, cipolla, alloro, olio, sale, pepe.</p><p><strong>Preparazione:</strong> Rosolare la carne in olio. Aggiungere verdure tritate e rosolare. Sfumare con il vino rosso. Aggiungere alloro, sale, pepe. Coprire e cuocere a fuoco bassissimo per almeno 3 ore.</p>`
+                    },
+                    {
+                        title: "Bollito di Copertina",
+                        details: `<h4>Bollito di Copertina</h4><p><strong>Ingredienti:</strong> 800g copertina, carota, sedano, cipolla, grani pepe, sale grosso.</p><p><strong>Preparazione:</strong> Mettere carne e verdure in acqua fredda. Portare a ebollizione, schiumare. Salare, aggiungere pepe in grani. Cuocere a fuoco lento per circa 2.5-3 ore. Servire caldo con salse.</p>`
+                    }
+                ]
+             },
+             fesone_di_spalla: {
+                 usage: "Buono per fettine, scaloppine, pizzaiola, o arrosti non troppo grandi. Abbastanza magro.",
+                 recipes: [
+                     {
+                        title: "Scaloppine al Limone",
+                        details: `<h4>Scaloppine al Limone (con Fesone di Spalla)</h4> <p><strong>Ingredienti:</strong> 4 fettine sottili di fesone di spalla, farina q.b., 50g burro, succo di 1 limone, prezzemolo tritato, sale, pepe.</p> <p><strong>Preparazione:</strong> Battere leggermente le fettine e infarinarle. Sciogliere il burro in padella. Cuocere le fettine pochi minuti per lato finché dorate. Salare e pepare. Togliere la carne, versare il succo di limone nel fondo di cottura, aggiungere prezzemolo. Nappare le scaloppine con la salsa.</p>`
+                    },
+                    {
+                        title: "Fettine alla Pizzaiola",
+                        details: `<h4>Fettine alla Pizzaiola (con Fesone di Spalla)</h4><p><strong>Ingredienti:</strong> 4 fettine fesone di spalla, 200g polpa pomodoro, origano, aglio, olio EVO, sale, pepe.</p><p><strong>Preparazione:</strong> Rosolare fettine in olio e aglio. Aggiungere pomodoro, origano, sale, pepe. Coprire e cuocere a fuoco basso per 10-15 minuti.</p>`
+                    },
+                    {
+                        title: "Arrosto Veloce di Fesone",
+                        details: `<h4>Arrosto Veloce di Fesone di Spalla</h4><p><strong>Ingredienti:</strong> 600g fesone di spalla legato, olio, rosmarino, aglio, sale, pepe.</p><p><strong>Preparazione:</strong> Rosolare la carne in olio con aromi. Salare e pepare. Infornare a 180°C per circa 30-40 minuti (rosato al centro). Far riposare.</p>`
+                    }
+                ]
+             },
+             petto: {
+                 usage: "Simile alla Punta di Petto, ma spesso più sottile. Adatto per bollito, brodo, macinato per ragù o polpette.",
+                 recipes: [
+                     {
+                        title: "Polpette al Sugo",
+                        details: `<h4>Polpette al Sugo (con Macinato di Petto)</h4> <p><strong>Ingredienti:</strong> 500g macinato di petto, 1 uovo, 50g pane raffermo ammollato nel latte, 50g parmigiano grattugiato, prezzemolo tritato, aglio (poco), sale, pepe. Per il sugo: passata di pomodoro, cipolla, olio EVO, basilico.</p> <p><strong>Preparazione:</strong> Mescolare il macinato con uovo, pane strizzato, parmigiano, prezzemolo, aglio tritato, sale, pepe. Formare le polpette. Preparare un sugo semplice soffriggendo cipolla in olio, aggiungendo passata e basilico. Cuocere le polpette nel sugo per circa 30-40 minuti.</p>`
+                    },
+                    {
+                        title: "Brodo di Carne",
+                        details: `<h4>Brodo di Carne con Petto</h4><p><strong>Ingredienti:</strong> 500g petto di manzo, 1 osso (opz.), carota, sedano, cipolla, prezzemolo, sale grosso.</p><p><strong>Preparazione:</strong> Mettere tutti gli ingredienti in una pentola capiente con acqua fredda. Portare a ebollizione, schiumare. Abbassare la fiamma e cuocere lentamente per almeno 2-3 ore. Filtrare il brodo.</p>`
+                    },
+                    {
+                        title: "Carne per Ragù",
+                        details: `<h4>Base per Ragù con Petto</h4><p><strong>Ingredienti:</strong> 600g petto macinato grosso, soffritto (cipolla, carota, sedano), olio, vino rosso, passata di pomodoro.</p><p><strong>Preparazione:</strong> Soffriggere le verdure tritate. Aggiungere il macinato e rosolare bene sgranandolo. Sfumare con vino rosso. Aggiungere la passata, sale, pepe. Cuocere a fuoco basso per almeno 1.5-2 ore.</p>`
+                    }
+                ]
+             },
+             garetto_anteriore: {
+                 usage: "Equivalente dell'Ossobuco dalla zampa anteriore. Ottimo per bolliti, stracotti, spezzatini e per preparare brodi saporiti.",
+                 recipes: [
+                     {
+                        title: "Spezzatino di Garetto",
+                        details: `<h4>Spezzatino di Garetto Anteriore</h4> <p><strong>Ingredienti:</strong> 800g garetto anteriore a pezzi (con osso), 1 cipolla, 2 carote, 2 coste sedano, 1 bicchiere vino rosso, brodo q.b., concentrato pomodoro, olio EVO, sale, pepe.</p> <p><strong>Preparazione:</strong> Infarinare leggermente la carne. Soffriggere trito di verdure. Aggiungere la carne e rosolare. Sfumare col vino. Unire concentrato, brodo a coprire, sale, pepe. Cuocere a fuoco basso coperto per almeno 2.5-3 ore, finché la carne si stacca dall'osso.</p>`
+                    },
+                    {
+                        title: "Bollito di Garetto",
+                        details: `<h4>Bollito di Garetto Anteriore</h4><p><strong>Ingredienti:</strong> 1 garetto anteriore intero (o a pezzi), carota, sedano, cipolla, sale grosso.</p><p><strong>Preparazione:</strong> Immergere il garetto e le verdure in acqua fredda. Portare a ebollizione, schiumare. Salare. Cuocere a fuoco lento per circa 3 ore o finché tenero. Ottimo per brodo.</p>`
+                    },
+                    {
+                        title: "Stracotto di Garetto",
+                        details: `<h4>Stracotto di Garetto Anteriore</h4><p><strong>Ingredienti:</strong> 1 garetto anteriore intero, soffritto abbondante, vino rosso, brodo, concentrato pomodoro, alloro, sale, pepe.</p><p><strong>Preparazione:</strong> Rosolare il garetto in olio. Togliere. Soffriggere le verdure. Rimettere il garetto, sfumare col vino. Aggiungere concentrato, alloro, brodo. Coprire e cuocere a fuoco bassissimo per 3-4 ore.</p>`
+                    }
+                ]
+             },
+             lombata: {
+                 usage: "Taglio pregiato da cui si ricavano Costata (con osso), Fiorentina (con osso e filetto) ed Entrecôte (senza osso). Ideale per cotture rapide ad alta temperatura: griglia, padella, piastra.",
+                 recipes: [
+                    {
+                        title: "Costata alla Griglia",
+                        details: `
+                            <h4>Costata alla Griglia</h4>
+                            <p><strong>Ingredienti:</strong> 1 costata di lombata (spessore almeno 3-4 cm), olio EVO, sale grosso, rosmarino (facoltativo).</p>
+                            <p><strong>Preparazione:</strong> Portare la carne a temperatura ambiente. Scaldare molto bene la griglia. Spennellare leggermente la costata con olio. Cuocere 4-7 minuti per lato (a seconda della cottura desiderata, al sangue/media). Girare una sola volta. Salare con sale grosso solo a fine cottura. Far riposare qualche minuto coperta prima di servire.</p>
+                        `
+                    },
+                    {
+                        title: "Bistecca alla Fiorentina",
+                        details: `
+                            <h4>Bistecca alla Fiorentina</h4>
+                            <p><strong>Ingredienti:</strong> 1 Bistecca alla Fiorentina (taglio alto 5-6 cm, >1kg), sale grosso, pepe nero (opz.), olio EVO (opz.). Carne a TEMPERATURA AMBIENTE.</p>
+                            <p><strong>Attrezzatura:</strong> Griglia a carbone (ideale) o molto potente, pinze.</p>
+                            <p><strong>Preparazione:</strong> <strong>1.</strong> Carne a temp. ambiente (2-3 ore fuori frigo). <strong>2.</strong> Brace vivissima (o griglia rovente). <strong>3.</strong> Cuocere 5-7 min per lato senza muoverla (crosta scura). <strong>4.</strong> Girare con pinze (non forare!). <strong>5.</strong> Cuocere sull'osso "in piedi" 3-5 min. <strong>6.</strong> Riposare 5-10 min coperta leggermente. <strong>7.</strong> Condire ORA con sale grosso, pepe (se piace) e filo d'olio. Affettare e servire.</p>
+                            <p><em>Punti chiave: Taglio alto, temp. ambiente, calore alto, cottura al sangue, sale solo alla fine.</em></p>
+                        `
+                    },
+                    {
+                        title: "Entrecôte alla Griglia/Padella",
+                        details: `
+                            <h4>Entrecôte alla Griglia o Padella</h4>
+                            <p><strong>Ingredienti:</strong> 1-2 Entrecôte (spessore 2.5-3 cm), olio o burro chiarificato, sale fino/Maldon, pepe nero, aglio/rosmarino (opz.), burro (opz. finale).</p>
+                            <p><strong>Attrezzatura:</strong> Padella pesante (ghisa) o griglia, pinze.</p>
+                            <p><strong>Preparazione:</strong> <strong>1.</strong> Carne a temp. ambiente (30-60 min fuori frigo), asciugare bene. <strong>2.</strong> Salare e pepare PRIMA della cottura. <strong>3.</strong> Scaldare padella/griglia a fuoco medio-alto con olio (aggiungere aromi opz.). <strong>4.</strong> Cuocere 2-4 min per lato (medium-rare). Creare crosticina. <strong>5.</strong> Aggiungere burro finale in padella (opz.) e nappare. <strong>6.</strong> Controllare cottura (termometro: 52-55°C MR). <strong>7.</strong> Riposare 5-10 min coperta. <strong>8.</strong> Servire intera o affettata.</p>
+                            <p><em>Punti chiave: Marezzatura, asciugare bene, sale prima, calore medio-alto, riposo.</em></p>
+                        `
+                    }
+                 ]
+             },
+             filetto: {
+                 usage: "Il taglio più tenero e pregiato. Perfetto per cotture rapide: medaglioni in padella, Chateaubriand (arrosto), tartare (crudo), carpaccio.",
+                 recipes: [
+                     {
+                        title: "Filetto al Pepe Verde",
+                        details: `<h4>Filetto al Pepe Verde</h4> <p><strong>Ingredienti:</strong> 2 medaglioni di filetto (alti 3-4 cm), 2 cucchiai pepe verde in salamoia, 50ml brandy o cognac, 100ml panna fresca, 30g burro, sale.</p> <p><strong>Preparazione:</strong> Schiacciare leggermente i grani di pepe verde. Cuocere i medaglioni nel burro caldo 2-3 minuti per lato. Salare. Togliere la carne e tenerla al caldo. Deglassare la padella con il brandy (attenzione alla fiamma). Aggiungere la panna e il pepe verde. Far ridurre leggermente la salsa. Servire i filetti nappati con la salsa.</p>`
+                    },
+                    {
+                        title: "Filetto alla Griglia",
+                        details: `<h4>Filetto alla Griglia</h4><p><strong>Ingredienti:</strong> 2 medaglioni di filetto (spessi 3-4 cm), olio EVO, sale Maldon (o sale grosso), pepe nero.</p><p><strong>Preparazione:</strong> Spennellare filetto con olio. Scaldare bene la griglia. Cuocere 3-5 min per lato (per cottura media/al sangue). Salare e pepare alla fine. Far riposare brevemente.</p>`
+                    },
+                    {
+                        title: "Chateaubriand (Filetto Arrosto)",
+                        details: `<h4>Chateaubriand (Filetto Arrosto)</h4><p><strong>Ingredienti:</strong> 500-600g cuore di filetto, olio, burro, sale, pepe, aromi (timo, rosmarino).</p><p><strong>Preparazione:</strong> Legare il filetto. Rosolarlo uniformemente in padella con olio e burro. Trasferire in forno a 200°C per 10-15 min (per cottura al sangue, usare termometro: 50°C al cuore). Far riposare avvolto in alluminio prima di affettare.</p>`
+                    }
+                ]
+             },
+             taglio_reale: {
+                  usage: "A volte identificato con parti della pancia o costato. Usato per bolliti, spezzatini, macinati o arrosti arrotolati e farciti.",
+                 recipes: [
+                     {
+                        title: "Bollito Misto Piemontese",
+                        details: `<h4>Bollito Misto Piemontese (parte di Taglio Reale)</h4> <p><strong>Ingredienti:</strong> Pezzo di taglio reale, altri tagli da bollito (es. lingua, testina, muscolo), verdure (carota, sedano, cipolla), sale grosso.</p> <p><strong>Preparazione:</strong> Cuocere i vari tagli di carne separatamente o insieme (a seconda dei tempi di cottura) in abbondante acqua fredda con verdure e sale. Portare a ebollizione, schiumare e cuocere a fuoco lento finché ogni pezzo è tenero (il taglio reale richiederà circa 2-3 ore). Servire caldo con salse tradizionali (bagnet verd, bagnet ross, mostarda...).</p>`
+                    },
+                    {
+                        title: "Spezzatino Saporito",
+                        details: `<h4>Spezzatino con Taglio Reale</h4><p><strong>Ingredienti:</strong> 800g taglio reale a cubetti, soffritto, vino rosso, brodo, passata pomodoro, patate (opz.), olio, sale, pepe.</p><p><strong>Preparazione:</strong> Rosolare la carne. Sfumare col vino. Aggiungere soffritto, passata, brodo. Cuocere lentamente per 1.5-2 ore. Aggiungere patate (se usate) e terminare cottura.</p>`
+                    },
+                    {
+                        title: "Macinato per Ragù",
+                        details: `<h4>Macinato di Taglio Reale per Ragù</h4><p><strong>Ingredienti:</strong> 700g taglio reale macinato, soffritto, vino, passata pomodoro.</p><p><strong>Preparazione:</strong> Soffriggere verdure. Aggiungere macinato e rosolare bene. Sfumare col vino. Aggiungere passata, sale, pepe. Cuocere a fuoco basso per almeno 1.5-2 ore.</p>`
+                    }
+                ]
+             },
+             pancia: {
+                 usage: "Include tagli come la 'Bavetta'. Ricca di sapore ma può essere tenace. Ottima marinata e cotta rapidamente alla griglia (tagliata controfibra), oppure per cotture lunghe (bollito, spezzatino), o macinata.",
+                 recipes: [
+                     {
+                        title: "Bavetta Marinata alla Griglia",
+                        details: `<h4>Bavetta Marinata alla Griglia</h4> <p><strong>Ingredienti:</strong> 500g bavetta di manzo. Marinata: olio EVO, succo di lime o aceto, aglio tritato, salsa di soia (o sale), pepe nero, erbe (es. coriandolo o prezzemolo).</p> <p><strong>Preparazione:</strong> Marinare la bavetta per almeno 1-2 ore (o più, in frigo). Scaldare molto bene una griglia o piastra. Sgocciolare la carne dalla marinata e cuocerla 2-4 minuti per lato per una cottura al sangue/media. È importante non cuocerla troppo. Far riposare qualche minuto, poi affettare sottilmente controfibra prima di servire.</p>`
+                    },
+                    {
+                        title: "Spezzatino di Pancia",
+                        details: `<h4>Spezzatino di Pancia (Cottura Lunga)</h4><p><strong>Ingredienti:</strong> 800g pancia a cubetti, cipolle, carote, sedano, vino rosso, brodo, concentrato pomodoro, olio, sale, pepe.</p><p><strong>Preparazione:</strong> Rosolare bene la carne. Sfumare col vino. Aggiungere verdure, concentrato, brodo. Cuocere a fuoco basso per almeno 2.5-3 ore finché molto tenera.</p>`
+                    },
+                    {
+                        title: "Bollito di Pancia",
+                        details: `<h4>Bollito di Pancia</h4><p><strong>Ingredienti:</strong> 1kg pancia, verdure da brodo (carota, sedano, cipolla), sale grosso.</p><p><strong>Preparazione:</strong> Mettere carne e verdure in acqua fredda. Portare a ebollizione, schiumare. Salare. Cuocere a fuoco lento per circa 3 ore. Servire caldo.</p>`
+                    }
+                ]
+             },
+              scamone: {
+                 usage: "Taglio pregiato, magro e tenero. Eccellente per fettine, bistecche (alte), arrosti, roast-beef, bourguignonne.",
+                 recipes: [
+                     {
+                        title: "Roast-beef di Scamone",
+                        details: `<h4>Roast-beef di Scamone</h4> <p><strong>Ingredienti:</strong> 1kg scamone (pezzo intero), senape di Digione, olio EVO, sale, pepe nero macinato fresco, erbe aromatiche (rosmarino, timo).</p> <p><strong>Preparazione:</strong> Portare la carne a temperatura ambiente. Massaggiare con senape, sale, pepe ed erbe tritate. Rosolare velocemente in padella con olio caldo su tutti i lati per sigillare. Trasferire in forno a 200-220°C per 15-20 minuti per kg (per cottura al sangue, usare un termometro: 50-55°C al cuore). Far riposare avvolto in alluminio per 10-15 minuti prima di affettare sottilmente.</p>`
+                    },
+                    {
+                        title: "Bistecche di Scamone",
+                        details: `<h4>Bistecche di Scamone in Padella</h4><p><strong>Ingredienti:</strong> 2 bistecche di scamone (alte 2-3 cm), olio, burro, aglio, rosmarino, sale, pepe.</p><p><strong>Preparazione:</strong> Scaldare olio e burro con aglio e rosmarino. Cuocere le bistecche 3-5 minuti per lato (a seconda della cottura). Salare e pepare alla fine. Nappare col fondo di cottura.</p>`
+                    },
+                    {
+                        title: "Boeuf Bourguignon",
+                        details: `<h4>Boeuf Bourguignon (con Scamone)</h4><p><strong>Ingredienti:</strong> 1kg scamone a cubetti, pancetta, cipolline, funghi, vino rosso Borgogna, brodo, carote, cipolla, farina, bouquet garni.</p><p><strong>Preparazione:</strong> Rosolare pancetta, poi la carne infarinata. Sfumare col vino. Aggiungere verdure, brodo, bouquet garni. Cuocere lentamente per 2-3 ore. A parte rosolare cipolline e funghi, aggiungerli alla fine.</p>`
+                    }
+                ]
+             },
+             fesa: {
+                 usage: "Grande taglio della coscia, diviso in Fesa Esterna (o Controfesa) e Sottofesa (Fesa Interna). La Fesa Esterna è ottima per fettine, pizzaiola, cotolette, involtini. La Fesa (generica) è buona anche per arrosti magri.",
+                 recipes: [
+                     {
+                        title: "Cotolette alla Milanese",
+                        details: `<h4>Cotolette alla Milanese (con Fesa Esterna)</h4> <p><strong>Ingredienti:</strong> 4 fette di fesa esterna (alte circa 1 cm), 2 uova, pangrattato q.b., sale, burro chiarificato (o olio di semi).</p> <p><strong>Preparazione:</strong> Battere leggermente le fettine. Sbattere le uova con un pizzico di sale. Passare le fettine prima nell'uovo, poi nel pangrattato, premendo bene per farlo aderire. Scaldare abbondante burro chiarificato (o olio) in una padella larga. Friggere le cotolette pochi minuti per lato finché dorate e croccanti. Scolare su carta assorbente e servire subito.</p>`
+                    },
+                    {
+                        title: "Involtini di Fesa",
+                        details: `<h4>Involtini di Fesa al Sugo</h4><p><strong>Ingredienti:</strong> 6 fettine sottili di fesa, ripieno (es. prosciutto, formaggio, prezzemolo), passata pomodoro, aglio, olio, sale, pepe.</p><p><strong>Preparazione:</strong> Preparare gli involtini col ripieno. Rosolarli in olio e aglio. Aggiungere passata, sale, pepe. Cuocere a fuoco basso per 20-30 minuti.</p>`
+                    },
+                    {
+                        title: "Arrosto di Fesa",
+                        details: `<h4>Arrosto di Fesa</h4><p><strong>Ingredienti:</strong> 1kg fesa (legata), olio, rosmarino, aglio, sale, pepe, vino bianco.</p><p><strong>Preparazione:</strong> Rosolare la carne in olio con aromi. Salare, pepare, sfumare col vino. Cuocere in forno a 180°C per circa 1 ora (o fino a temp. interna desiderata). Far riposare.</p>`
+                    }
+                ]
+             },
+             noce: {
+                 usage: "Taglio pregiato, molto magro e tenero. Ideale per fettine, scaloppine, bistecche, roast-beef, tartare e cotture rapide.",
+                 recipes: [
+                     {
+                        title: "Tartare di Manzo",
+                        details: `<h4>Tartare di Manzo (con Noce)</h4> <p><strong>Ingredienti:</strong> 300g noce freschissima, 1 tuorlo d'uovo fresco, 1 cucchiaino senape, poche gocce salsa Worcestershire, capperi tritati, cipolla rossa tritata finemente (o scalogno), prezzemolo tritato, olio EVO, sale, pepe.</p> <p><strong>Preparazione:</strong> Tagliare la carne finemente al coltello (non usare il tritacarne). In una ciotola, mescolare delicatamente la carne con tutti gli altri ingredienti (dosare secondo gusto). Assaggiare e aggiustare di sale e pepe. Servire immediatamente, magari con crostini di pane.</p>`
+                    },
+                    {
+                        title: "Scaloppine di Noce ai Funghi",
+                        details: `<h4>Scaloppine di Noce ai Funghi</h4><p><strong>Ingredienti:</strong> 4 fettine sottili di noce, farina, funghi champignon, aglio, prezzemolo, burro, vino bianco, sale, pepe.</p><p><strong>Preparazione:</strong> Infarinare le fettine. Cuocerle nel burro. Togliere. Nella stessa padella cuocere i funghi con aglio e prezzemolo. Sfumare col vino. Rimettere la carne, scaldare.</p>`
+                    },
+                    {
+                        title: "Bistecche di Noce Rapide",
+                        details: `<h4>Bistecche di Noce Rapide</h4><p><strong>Ingredienti:</strong> 2 bistecche di noce (alte 1.5-2 cm), olio, sale, pepe.</p><p><strong>Preparazione:</strong> Scaldare bene una padella o piastra con poco olio. Cuocere le bistecche 1-2 minuti per lato per una cottura molto rapida (al sangue). Salare e pepare alla fine.</p>`
+                    }
+                ]
+             },
+            fiocco: { // Chiave rimane fiocco, nome visualizzato Spinacino
+                usage: "Spinacino: buono per fettine, bistecche, piccoli arrosti, tasche ripiene.",
+                 recipes: [
+                    {
+                        title: "Spinacino Ripieno",
+                        details: `
+                            <h4>Spinacino Ripieno al Forno</h4>
+                            <p><strong>Ingredienti:</strong> 1 spinacino, 150g macinato misto, 50g parmigiano, 1 uovo, 30g pangrattato, prezzemolo, aglio, noce moscata, sale, pepe, olio, vino bianco.</p>
+                            <p><strong>Preparazione:</strong> Aprire a tasca. Preparare ripieno. Farcire e chiudere. Rosolare in padella. Sfumare vino. Cuocere in forno 180°C per 40-50 min.</p>
+                        `
+                     },
+                     {
+                        title: "Bistecche di Spinacino",
+                        details: `
+                            <h4>Bistecche di Spinacino in Padella</h4>
+                            <p><strong>Ingredienti:</strong> 2 bistecche di spinacino, olio, aglio, rosmarino, sale, pepe.</p>
+                            <p><strong>Preparazione:</strong> Scaldare olio con aromi. Cuocere bistecche 2-4 min per lato. Salare e pepare alla fine.</p>
+                        `
+                    },
+                    {
+                        title: "Fettine di Spinacino al Limone",
+                        details: `
+                            <h4>Fettine di Spinacino al Limone</h4>
+                             <p><strong>Ingredienti:</strong> 4 fettine sottili di spinacino, farina, burro, succo di limone, prezzemolo, sale, pepe.</p>
+                             <p><strong>Preparazione:</strong> Infarinare fettine. Cuocere in burro finché dorate. Togliere carne, deglassare con limone, aggiungere prezzemolo. Nappare le fettine.</p>
+                        `
+                    }
+                ]
+            },
+            fesa_interna: { // Chiave rimane fesa_interna, nome visualizzato Sottofesa
+                usage: "Sottofesa: molto tenera, per carpaccio, scaloppine, bistecche rapide, roast-beef.",
+                recipes: [
+                    {
+                        title: "Carpaccio con Rucola e Grana",
+                         details: `
+                             <h4>Carpaccio di Sottofesa con Rucola e Grana</h4>
+                             <p><strong>Ingredienti:</strong> 200g sottofesa affettata sottile, rucola, scaglie Parmigiano, olio EVO, limone, sale, pepe.</p>
+                             <p><strong>Preparazione:</strong> Disporre carne sul piatto. Condire con emulsione olio/limone/sale/pepe. Guarnire con rucola e grana.</p>
+                        `
+                    },
+                    {
+                         title: "Scaloppine di Sottofesa ai Funghi",
+                         details: `
+                             <h4>Scaloppine di Sottofesa ai Funghi</h4>
+                             <p><strong>Ingredienti:</strong> 4 fettine sottili di sottofesa, farina, funghi champignon, aglio, prezzemolo, vino bianco, burro, olio, sale, pepe.</p>
+                             <p><strong>Preparazione:</strong> Infarinare fettine. Cuocere in burro/olio. Togliere. Nella stessa padella cuocere funghi con aglio. Sfumare vino. Rimettere carne, scaldare. Spolverare prezzemolo.</p>
+                         `
+                     },
+                     {
+                         title: "Roast-beef Veloce di Sottofesa",
+                         details: `
+                             <h4>Roast-beef Veloce di Sottofesa</h4>
+                             <p><strong>Ingredienti:</strong> 800g sottofesa intera, olio, sale, pepe, rosmarino.</p>
+                             <p><strong>Preparazione:</strong> Massaggiare carne con sale, pepe, rosmarino. Rosolare bene su tutti i lati in olio caldo. In forno a 200°C per 15-20 min (per cottura al sangue). Far riposare prima di affettare.</p>
+                         `
+                     }
+                 ]
+             },
+             girello: {
+                 usage: "Molto magro, forma cilindrica regolare. Famoso per il Vitello Tonnato, ottimo anche per arrosti (che tendono a restare un po' asciutti se non bardati), fettine e roast-beef all'inglese.",
+                 recipes: [
+                     {
+                        title: "Vitello Tonnato",
+                        details: `<h4>Vitello Tonnato (con Girello)</h4> <p><strong>Ingredienti:</strong> 800g girello di vitello (o manzo giovane), 1 carota, 1 costa sedano, 1 cipolla, 1 bicchiere vino bianco secco, acqua. Per la salsa: 200g tonno sott'olio sgocciolato, 3-4 filetti acciuga, 1 cucchiaio capperi dissalati, 2 tuorli sodi, succo di limone, olio EVO (o maionese).</p> <p><strong>Preparazione:</strong> Cuocere il girello in acqua (o brodo leggero) con verdure e vino bianco finché tenero (circa 1-1.5 ore). Far raffreddare completamente nel suo brodo. Frullare tutti gli ingredienti della salsa fino a ottenere una crema liscia (aggiungere poco brodo di cottura se troppo densa). Affettare finemente la carne fredda, disporla su un piatto e coprire con la salsa. Far riposare in frigo almeno un'ora prima di servire.</p>`
+                    },
+                    {
+                        title: "Arrosto di Girello",
+                        details: `<h4>Arrosto di Girello</h4><p><strong>Ingredienti:</strong> 800g girello, pancetta o lardo per bardare, olio, rosmarino, aglio, sale, pepe, vino bianco.</p><p><strong>Preparazione:</strong> Bardare il girello con pancetta/lardo e legare. Rosolare in olio con aromi. Salare, pepare, sfumare con vino. Cuocere in forno a 180°C per circa 50-60 minuti. Far riposare.</p>`
+                    },
+                    {
+                        title: "Fettine di Girello Impanate",
+                        details: `<h4>Fettine di Girello Impanate</h4><p><strong>Ingredienti:</strong> 4 fettine sottili di girello, uovo, pangrattato, sale, olio per friggere.</p><p><strong>Preparazione:</strong> Battere leggermente le fettine. Passarle nell'uovo sbattuto e poi nel pangrattato. Friggere in olio caldo finché dorate.</p>`
+                    }
+                ]
+             },
+             pesce: {
+                 usage: "Chiamato anche 'Campanello'. Muscolo ricco di tessuto connettivo. Ideale per cotture molto lunghe: bolliti, stracotti, spezzatini, goulash. Ottimo per brodo.",
+                 recipes: [
+                     {
+                        title: "Stracotto di Pesce",
+                        details: `<h4>Stracotto di Pesce (Campanello)</h4> <p><strong>Ingredienti:</strong> 1kg pesce di manzo, 1 cipolla grande, 2 carote, 2 coste sedano, 1 bicchiere vino rosso robusto, 400g polpa pomodoro, brodo q.b., olio EVO, sale, pepe, alloro.</p> <p><strong>Preparazione:</strong> Rosolare bene la carne su tutti i lati in olio caldo. Togliere la carne. Nella stessa pentola, soffriggere le verdure tritate. Rimettere la carne, sfumare col vino. Aggiungere la polpa di pomodoro, alloro, sale, pepe e brodo fino a coprire quasi la carne. Coprire e cuocere a fuoco bassissimo per almeno 3-4 ore, finché la carne è morbidissima. Servire con polenta o purè.</p>`
+                    },
+                    {
+                        title: "Bollito di Pesce",
+                        details: `<h4>Bollito di Pesce (Campanello)</h4><p><strong>Ingredienti:</strong> 1kg pesce, carota, sedano, cipolla, sale grosso.</p><p><strong>Preparazione:</strong> Mettere carne e verdure in acqua fredda. Portare a ebollizione, schiumare. Salare. Cuocere a fuoco lento per almeno 3 ore. Ottimo sia caldo che per insalate fredde.</p>`
+                    },
+                    {
+                        title: "Spezzatino di Pesce con Piselli",
+                        details: `<h4>Spezzatino di Pesce con Piselli</h4><p><strong>Ingredienti:</strong> 800g pesce a cubetti, cipolla, brodo, piselli (freschi o surgelati), olio, sale, pepe.</p><p><strong>Preparazione:</strong> Soffriggere cipolla. Rosolare la carne. Salare, pepare. Coprire con brodo e cuocere per 2 ore. Aggiungere i piselli e cuocere per altri 30 minuti.</p>`
+                    }
+                ]
+             },
+             ossobuco: {
+                 usage: "Fette trasversali del Geretto Posteriore (o Anteriore), con l'osso centrale contenente midollo. Famoso 'alla Milanese' (in bianco) o in umido. Cottura lenta.",
+                 recipes: [
+                     {
+                        title: "Ossobuco alla Milanese",
+                        details: `<h4>Ossobuco alla Milanese</h4> <p><strong>Ingredienti:</strong> 4 ossobuchi di vitello (o manzo giovane), farina q.b., 50g burro, 1/2 cipolla tritata fine, 1 bicchiere vino bianco secco, brodo di carne q.b., sale, pepe. Per la gremolada: scorza di 1 limone grattugiata, 1 spicchio aglio tritato, prezzemolo tritato.</p> <p><strong>Preparazione:</strong> Incidere la pellicina esterna degli ossobuchi per non farli arricciare. Infarinarli leggermente. Rosolarli nel burro caldo su entrambi i lati. Togliere la carne. Soffriggere la cipolla nel fondo di cottura. Rimettere gli ossobuchi, sfumare col vino bianco. Salare, pepare, aggiungere brodo fino a metà altezza. Coprire e cuocere a fuoco basso per circa 1.5-2 ore, aggiungendo brodo se necessario. Preparare la gremolada mescolando gli ingredienti. Cospargere sugli ossobuchi poco prima di servire, tipicamente con risotto alla milanese.</p>`
+                    },
+                    {
+                        title: "Ossobuco in Umido",
+                        details: `<h4>Ossobuco in Umido con Pomodoro</h4><p><strong>Ingredienti:</strong> 4 ossobuchi, farina, soffritto (cipolla, carota, sedano), olio, vino rosso, passata pomodoro, brodo, sale, pepe.</p><p><strong>Preparazione:</strong> Infarinare e rosolare gli ossobuchi. Togliere. Soffriggere le verdure. Rimettere carne, sfumare col vino. Aggiungere passata, brodo. Coprire e cuocere lentamente per 1.5-2 ore.</p>`
+                    },
+                    {
+                        title: "Ossobuco al Forno",
+                        details: `<h4>Ossobuco al Forno con Patate</h4><p><strong>Ingredienti:</strong> 4 ossobuchi, patate a spicchi, cipolla, rosmarino, olio, sale, pepe, brodo.</p><p><strong>Preparazione:</strong> Rosolare ossobuchi in padella. Trasferire in teglia da forno con patate, cipolla, rosmarino. Condire con olio, sale, pepe. Aggiungere poco brodo. Cuocere in forno a 180°C per circa 1.5 ore, coperto per la prima ora.</p>`
+                    }
+                ]
+             }
+        };
+
+        // --- Selezione elementi DOM ---
+        const labels = document.querySelectorAll('.cut-label');
+        const infoBox = document.getElementById('info-box');
+        const infoTitle = document.getElementById('info-title');
+        const infoUsage = document.getElementById('info-usage');
+        const recipeSelect = document.getElementById('recipe-select');
+        const recipeDetails = document.getElementById('recipe-details');
+        const closeButtonInfoBox = document.getElementById('close-button');
+        const footerLogo = document.getElementById('footer-logo');
+        const logoModal = document.getElementById('logo-modal');
+        const closeModalButton = document.getElementById('close-modal-button');
+        
+        // ===== NUOVA SELEZIONE ELEMENTI CHAT AI =====
+        const aiQuestionInput = document.getElementById('ai-question-input');
+        const aiAskButton = document.getElementById('ai-ask-button');
+        const aiResponseContainer = document.getElementById('ai-response-container');
+
+        let currentCutName = null;
+        let currentCutLabel = '';
+
+        /**
+         * ===== NUOVA FUNZIONE SIMULAZIONE AI (MOLTO POTENZIATA) =====
+         * Simula una risposta dettagliata e contestuale dallo Chef Lorenzo.
+         * @param {string} cutLabel Il nome visualizzato del taglio (es. "Lombata").
+         * @param {string} userQuestion La domanda dell'utente.
+         * @returns {Promise<string>}
+         */
+        function mockClaudeApi(cutLabel, userQuestion) {
+            const cutKey = currentCutName; // Usa la chiave dati (es. 'lombata') per logica affidabile
+            const q = userQuestion.toLowerCase();
+
+            // Dati di supporto per risposte più specifiche
+            const winePairings = {
+                lombata: "un rosso strutturato e tannico come un <strong>Chianti Classico Riserva</strong>, un <strong>Brunello di Montalcino</strong> o un <strong>Cabernet Sauvignon</strong>. La loro struttura regge bene il sapore intenso della carne alla griglia.",
+                filetto: "un rosso elegante e non troppo aggressivo, come un <strong>Pinot Nero</strong>, un <strong>Valpolicella Classico Superiore</strong> o un <strong>Merlot</strong>. Esaltano la delicatezza della carne senza sovrastarla.",
+                scamone: "un rosso di buon corpo ma versatile, come un <strong>Montepulciano d'Abruzzo</strong> o un <strong>Dolcetto d'Alba</strong>. Perfetti sia per l'arrosto che per la bistecca.",
+                fesa: "un rosso di medio corpo e fruttato. Prova un <strong>Sangiovese giovane</strong> o un <strong>Barbera d'Asti</strong>. Se la ricetta è una cotoletta, anche una birra bionda artigianale è ottima!",
+                noce: "un rosso leggero e profumato, come un <strong>Grignolino</strong>, oppure per una tartare, un bianco fresco e sapido come un <strong>Vermentino</strong> o un Franciacorta.",
+                collo: "per un brasato o uno spezzatino, un vino rosso robusto come un <strong>Barolo</strong>, un <strong>Amarone</strong> o un <strong>Taurasi</strong>. Lo stesso tipo di vino usato in cottura, ma di qualità superiore, è sempre una scelta vincente.",
+                reale: "un <strong>Nebbiolo d'Alba</strong> o un <strong>Aglianico</strong>. Hanno la struttura giusta per accompagnare la ricchezza di un arrosto o di uno spezzatino di reale.",
+                pesce: "un vino rosso molto corposo e tannico. Ideale un <strong>Sagrantino di Montefalco</strong> o un <strong>Cannonau di Sardegna Riserva</strong>. Il loro tannino pulisce la bocca dalla succulenza del taglio.",
+                garetto_anteriore: "un vino rosso robusto e caldo, come un <strong>Primitivo di Manduria</strong>. Accompagna meravigliosamente la ricchezza del midollo e della carne gelatinosa.",
+                ossobuco: "il classico è un <strong>vino rosso lombardo</strong>, come un Bonarda dell'Oltrepò Pavese vivace o un Valtellina Superiore. Se preparato con pomodoro, anche un Barbera si sposa bene.",
+                girello: "per il vitello tonnato, un bianco fresco e minerale come un <strong>Gavi</strong> o un <strong>Verdicchio dei Castelli di Jesi</strong> è perfetto. Per l'arrosto, un rosso leggero come un <strong>Rossese di Dolceacqua</strong>.",
+                spalla: "per brasati e spezzatini, un rosso corposo e fruttato come un <strong>Syrah</strong> o un <strong>Morellino di Scansano</strong>.",
+                default: "un buon vino rosso di medio corpo come un <strong>Merlot</strong> o un <strong>Chianti</strong> è spesso una scelta sicura e versatile."
+            };
+
+            const cookingTempGuide = `
+                <p>Per una cottura di precisione, il termometro da cucina è il tuo migliore amico. Ecco le temperature da misurare al cuore della carne (la parte più spessa, lontana dall'osso):</p>
+                <ul>
+                    <li><strong>Al sangue (Rare):</strong> 50-52°C. Centro rosso vivo, molto succosa.</li>
+                    <li><strong>Media al sangue (Medium-Rare):</strong> 55-57°C. Centro rosa acceso, tenera e succosa. La cottura ideale per tagli pregiati.</li>
+                    <li><strong>A punto (Medium):</strong> 60-63°C. Centro rosa più chiaro, meno succosa ma ancora tenera.</li>
+                    <li><strong>Ben cotta (Well-done):</strong> Oltre i 68°C. Carne quasi completamente grigia/marrone, meno tenera. La sconsiglio per tagli come filetto o lombata!</li>
+                </ul>
+                <p><strong>Ricorda il riposo!</strong> Dopo la cottura, lascia riposare la carne per 5-10 minuti (coperta morbidamente con alluminio) prima di tagliarla. I succhi si ridistribuiranno e la carne rimarrà molto più tenera e saporita.</p>
+            `;
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let responseContent = '';
+
+                    // 1. Domande sul VINO
+                    if (q.includes('vino') || q.includes('abbinamento') || q.includes('abbino') || q.includes('bere')) {
+                        const pairing = winePairings[cutKey] || winePairings.default;
+                        responseContent = `
+                            <p>Certo, parliamo di vino! Per un taglio come il <strong>${cutLabel}</strong>, ti suggerisco ${pairing}</p>
+                            <p>Ricorda, la preparazione conta molto! Un brasato richiederà un vino più potente di una semplice fettina in padella. Salute!</p>
+                        `;
+                    }
+                    // 2. Domande su TEMPERATURA / COTTURA AL SANGUE, MEDIA, ECC.
+                    else if (q.includes('temperatura') || q.includes('termometro') || q.includes('sangue') || q.includes('media') || q.includes('cotta')) {
+                        responseContent = `
+                            <p>La temperatura è tutto per una cottura perfetta del <strong>${cutLabel}</strong>. Parliamone in dettaglio.</p>
+                            ${cookingTempGuide}
+                            <p>Per un taglio spesso come una costata o un filetto (3-5 cm), usa una padella rovente o una griglia per creare una bella crosta esterna (la famosa reazione di Maillard) e poi gestisci il calore (abbassandolo o passando in forno) per raggiungere la temperatura al cuore desiderata. Per fettine sottili, invece, basta una cottura rapidissima a calore vivo!</p>
+                        `;
+                    }
+                    // 3. Domande sulla TENEREZZA
+                    else if (q.includes('tenero') || q.includes('morbido')) {
+                        if (['collo', 'pesce', 'garetto_anteriore', 'spalla', 'petto', 'copertina', 'pancia'].includes(cutKey)) {
+                            responseContent = `
+                                <p>Il <strong>${cutLabel}</strong> è un taglio ricco di tessuto connettivo, il che lo rende incredibilmente saporito. Il segreto per renderlo tenerissimo è una <strong>cottura lenta e umida</strong>.</p>
+                                <ul>
+                                    <li><strong>Metodi:</strong> Brasatura, stufato, bollito lungo.</li>
+                                    <li><strong>Come funziona:</strong> Il calore basso e prolungato (almeno 2-3 ore) scioglie il collagene trasformandolo in gelatina, che rende la carne succulenta e che si sfalda con la forchetta.</li>
+                                    <li><strong>Attrezzi:</strong> Una pentola in ghisa (cocotte) è perfetta perché distribuisce il calore in modo uniforme.</li>
+                                </ul>
+                            `;
+                        } else { // Per tagli teneri come filetto, lombata, scamone, noce
+                             responseContent = `
+                                <p>Il <strong>${cutLabel}</strong> è un taglio naturalmente tenero, quindi l'obiettivo è <strong>non rovinarlo</strong> con una cottura eccessiva!</p>
+                                <ul>
+                                    <li><strong>Il nemico n.1:</strong> La cottura prolungata. Evita di cuocerlo "ben cotto".</li>
+                                    <li><strong>Il segreto:</strong> Cottura rapida ad alta temperatura (griglia, padella di ghisa, piastra). L'obiettivo è creare una crosticina saporita all'esterno mantenendo l'interno succoso e rosa.</li>
+                                    <li><strong>Spessore:</strong> Per una bistecca spessa 3-4 cm, pochi minuti per lato sono sufficienti. Usa un termometro per la massima precisione (raggiungi 55-57°C al cuore per una cottura media perfetta).</li>
+                                    <li><strong>Il riposo:</strong> Lasciare riposare la carne dopo la cottura è FONDAMENTALE per mantenerla tenera e succosa.</li>
+                                </ul>
+                            `;
+                        }
+                    }
+                     // 4. Domande sui METODI DI COTTURA (FORNO, GRIGLIA, PADELLA)
+                    else if (q.includes('cuocere') || q.includes('cottura') || q.includes('griglia') || q.includes('padella') || q.includes('forno')) {
+                         responseContent = `
+                            <p>Ottima domanda sulla cottura del <strong>${cutLabel}</strong>. La scelta del metodo dipende molto dalla natura del taglio.</p>
+                            <p>Se è un taglio da <strong>cottura rapida</strong> (come <strong>Lombata, Filetto, Scamone</strong>), la <strong>griglia</strong> o una <strong>padella in ferro/ghisa</strong> ben calda sono ideali. Pochi minuti per lato, calore alto per sigillare la superficie e via! L'altezza del taglio è importante: più è alto, più dovrai gestire il calore per non bruciare l'esterno. Per tagli molto alti (es. Fiorentina), dopo la rosolatura iniziale si può finire la cottura "in piedi" sull'osso o in una zona meno calda della griglia.</p>
+                            <p>Se invece è un taglio da <strong>cottura lenta</strong> (come <strong>Collo, Spalla, Pesce</strong>), il <strong>forno a bassa temperatura</strong> (140-160°C) o una <strong>pentola per brasati</strong> sono i tuoi migliori alleati. Qui si parla di ore, non di minuti, per ottenere quella consistenza che si scioglie in bocca.</p>
+                            <p>Per essere sicuro del risultato, ti consiglio di usare sempre un termometro per carni!</p>
+                         `;
+                    }
+                    // 5. Risposta generica di fallback
+                    else {
+                        responseContent = `
+                            <p>Questa è un'ottima domanda sul <strong>${cutLabel}</strong>. È un taglio davvero versatile. Per darti il consiglio migliore, potresti chiedermi qualcosa di più specifico? Ad esempio:</p>
+                            <ul>
+                                <li>"Quale vino abbino al ${cutLabel} arrosto?"</li>
+                                <li>"Come lo rendo più tenero?"</li>
+                                <li>"Qual è la temperatura interna per una cottura media?"</li>
+                            </ul>
+                            <p>Sono qui per aiutarti a tirare fuori il massimo dal tuo taglio di carne!</p>
+                        `;
+                    }
+
+                    const finalResponse = `
+                        <p>Ciao! Sono <strong class="chef-name">Lorenzo</strong>. Riguardo alla tua domanda: "<em>${userQuestion}</em>", ecco il mio consiglio:</p>
+                        ${responseContent}
+                        <p>Spero ti sia d'aiuto. Buona preparazione!</p>
+                    `;
+                    resolve(finalResponse);
+                }, 1500); // Ritardo di 1.5 secondi
+            });
+        }
+
+
+        // --- Gestione apertura e chiusura pop-up ---
+        labels.forEach(label => {
+            label.addEventListener('click', () => {
+                currentCutName = label.getAttribute('data-cut');
+                currentCutLabel = label.textContent; // Salva il nome visualizzato
+                const data = cutData[currentCutName];
+
+                // Pulisce i contenuti precedenti
+                recipeSelect.innerHTML = '';
+                recipeDetails.innerHTML = '';
+                aiQuestionInput.value = ''; // Pulisce l'input
+                aiResponseContainer.innerHTML = '';
+                aiResponseContainer.classList.add('hidden'); // Nasconde la risposta
+                aiAskButton.disabled = false;
+
+                if (data) {
+                    infoTitle.textContent = label.textContent;
+                    infoUsage.innerHTML = data.usage;
+
+                    if (data.recipes && data.recipes.length > 0) {
+                        const placeholderOption = document.createElement('option');
+                        placeholderOption.value = "";
+                        placeholderOption.textContent = "-- Seleziona una ricetta --";
+                        placeholderOption.disabled = true;
+                        placeholderOption.selected = true;
+                        recipeSelect.appendChild(placeholderOption);
+
+                        data.recipes.forEach((recipe, index) => {
+                            const option = document.createElement('option');
+                            option.value = index;
+                            option.textContent = recipe.title;
+                            recipeSelect.appendChild(option);
+                        });
+                        recipeDetails.innerHTML = '<p>Seleziona una ricetta dal menu qui sopra.</p>';
+                        recipeSelect.style.display = 'block';
+                    } else {
+                        recipeSelect.style.display = 'none';
+                        recipeDetails.innerHTML = '<p>Nessuna ricetta disponibile per questo taglio.</p>';
+                    }
+                    infoBox.classList.add('visible');
+                }
+            });
+        });
+
+        recipeSelect.addEventListener('change', () => {
+            if (currentCutName !== null && recipeSelect.value !== "") {
+                const recipe = cutData[currentCutName].recipes[parseInt(recipeSelect.value, 10)];
+                recipeDetails.innerHTML = recipe.details;
+            } else {
+                 recipeDetails.innerHTML = '<p>Seleziona una ricetta dal menu qui sopra.</p>';
+            }
+        });
+
+        closeButtonInfoBox.addEventListener('click', () => {
+            infoBox.classList.remove('visible');
+            currentCutName = null;
+        });
+        
+        // ===== NUOVO EVENT LISTENER PER IL PULSANTE CHAT AI =====
+        aiAskButton.addEventListener('click', () => {
+            const userQuestion = aiQuestionInput.value.trim();
+            if (!currentCutName || !userQuestion) {
+                alert("Per favore, scrivi una domanda prima di chiedere a Lorenzo!");
+                return;
+            }
+
+            aiAskButton.disabled = true;
+            aiResponseContainer.classList.remove('hidden');
+            aiResponseContainer.innerHTML = `<p class="loading">Lo Chef Lorenzo sta pensando alla tua domanda...</p>`;
+
+            mockClaudeApi(currentCutLabel, userQuestion)
+                .then(response => {
+                    aiResponseContainer.innerHTML = response;
+                })
+                .catch(error => {
+                    console.error("Errore nella simulazione AI:", error);
+                    aiResponseContainer.innerHTML = `<p>Oops! Lorenzo ha avuto un contrattempo in cucina. Riprova.</p>`;
+                })
+                .finally(() => {
+                    aiAskButton.disabled = false;
+                });
+        });
+
+        // --- Event Listener MODAL LOGO ---
+        if (footerLogo && logoModal && closeModalButton) {
+            footerLogo.addEventListener('click', () => { logoModal.style.display = 'flex'; });
+            closeModalButton.addEventListener('click', () => { logoModal.style.display = 'none'; });
+            logoModal.addEventListener('click', (event) => {
+                if (event.target === logoModal) { logoModal.style.display = 'none'; }
+            });
+        }
+
+    </script>
+
+</body>
+</html>

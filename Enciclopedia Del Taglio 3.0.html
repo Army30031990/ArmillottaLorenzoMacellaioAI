@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enciclopedia del Taglio - Interspar Carpi</title>
+
+    <!-- Google Fonts Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Reset & Basic Styles --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            line-height: 1.7;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1, h2, h3, #welcome-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* --- Color Variables - Butcher Shop Theme --- */
+        :root {
+            --primary-color: #B71C1C; /* Deep Red */
+            --secondary-color: #D2B48C; /* Tan/Beige */
+            --accent-color: #C62828; /* Slightly Brighter Red for Hover/Active */
+            --text-color: #333333; /* Dark Grey for Text */
+            --light-bg: #ffffff; /* White for section backgrounds */
+            --border-color: #dddddd; /* Lighter Grey for borders */
+            --card-bg: #ffffff; /* White for cards */
+            --header-bg: #ffffff; /* White header background */
+            --footer-bg: #333333; /* Dark Grey footer */
+            --footer-text: #f4f4f4; /* Light text for footer */
+            --welcome-bg: #f4f4f4;
+        }
+
+        /* --- Welcome Section --- */
+        #welcome-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            background-color: var(--welcome-bg);
+            padding: 40px 20px;
+        }
+
+        #welcome-section .welcome-content {
+             background-color: var(--card-bg);
+             padding: 30px 40px;
+             border-radius: 10px;
+             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+             max-width: 700px;
+             border-left: 5px solid var(--primary-color);
+        }
+
+        #welcome-section h2 {
+            color: var(--primary-color);
+            font-size: 2.7em;
+            margin-bottom: 20px;
+        }
+
+        #welcome-section p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        #welcome-section .quote {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 1.6em;
+            font-weight: 400;
+            color: var(--primary-color);
+            margin: 30px 0;
+            padding: 15px;
+            border-top: 1px solid var(--secondary-color);
+            border-bottom: 1px solid var(--secondary-color);
+            display: inline-block;
+        }
+
+        #enter-app-button {
+            font-family: 'Lora', serif;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 25px;
+        }
+
+        #enter-app-button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        /* --- Encyclopedia App Container (Initially Hidden) --- */
+        #encyclopedia-app {
+            display: none;
+        }
+
+        /* --- Header --- */
+        header {
+            background-color: var(--header-bg);
+            padding: 15px 20px;
+            border-bottom: 3px solid var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            min-height: 80px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-right: 150px;
+        }
+
+        #interspar-logo {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 20px;
+            height: 50px;
+            width: auto;
+        }
+
+        /* --- Navigation --- */
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background-color: var(--primary-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        nav button {
+            font-family: 'Lora', serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 700;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        nav button:hover,
+        nav button.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        /* --- Content Sections --- */
+        .content-section {
+            display: none;
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-section h2 {
+            color: var(--primary-color);
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 5px;
+        }
+
+        /* --- Cut Cards --- */
+        .cuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .cut-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cut-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+        }
+
+        .cut-image-placeholder {
+            height: 180px;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #888;
+            font-style: italic;
+            background-size: cover;
+            background-position: center;
+            text-align: center;
+            font-size: 0.9em;
+            font-family: 'Lora', serif;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cut-image-placeholder[style*="background-image"] {
+            color: transparent;
+            font-size: 0;
+        }
+
+         .cut-image-placeholder[style*="background-image"]:hover::after {
+            content: '🔍';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            padding: 5px;
+            pointer-events: none;
+        }
+
+
+        .cut-details {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cut-details h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.5em;
+        }
+
+        .cut-details p {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            color: var(--text-color);
+        }
+
+        .cut-details p strong {
+            color: #555;
+            min-width: 100px;
+            display: inline-block;
+            font-weight: 700;
+            vertical-align: top;
+        }
+         .cut-details p span {
+             display: inline-block;
+             width: calc(100% - 105px);
+             vertical-align: top;
+         }
+
+        .placeholder-text {
+            font-style: italic;
+            color: #666;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* --- Lightbox Styles --- */
+        #lightbox-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            cursor: pointer;
+        }
+
+        #lightbox-content {
+            text-align: center;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: default;
+        }
+
+        #lightbox-image {
+            display: block;
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
+        }
+
+        #lightbox-suggestion {
+            color: #eee;
+            margin-top: 15px;
+            font-size: 1em;
+            max-width: 80%;
+        }
+
+        #lightbox-close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            line-height: 1;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            z-index: 1010;
+        }
+
+        #lightbox-close:hover {
+            color: #ccc;
+        }
+
+
+        /* --- Footer --- */
+        footer {
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.9em;
+            line-height: 1.5;
+            font-family: 'Lora', serif;
+        }
+
+        footer p {
+            margin-bottom: 5px;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 768px) {
+             h1, #welcome-section h2 { font-size: 2.2em; }
+             .content-section h2 { font-size: 1.8em; }
+             .cut-details h3 { font-size: 1.3em; }
+             #welcome-section .quote { font-size: 1.4em; }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding-bottom: 10px;
+                min-height: 0;
+            }
+            header h1 {
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+            #interspar-logo {
+                position: static;
+                transform: none;
+                align-self: flex-end;
+                margin-top: -45px;
+                margin-bottom: 10px;
+                height: 40px;
+            }
+            nav ul {
+                justify-content: center;
+            }
+            .cuts-grid {
+                grid-template-columns: 1fr;
+            }
+             .cut-details p strong {
+                min-width: 90px;
+             }
+              .cut-details p span {
+                  width: calc(100% - 95px);
+              }
+             #welcome-section .welcome-content {
+                 padding: 20px 25px;
+             }
+             #lightbox-suggestion {
+                 font-size: 0.9em;
+                 max-width: 90%;
+             }
+        }
+         @media (max-width: 480px) {
+            h1, #welcome-section h2 { font-size: 1.9em; }
+            .content-section h2 { font-size: 1.6em; }
+            .cut-details h3 { font-size: 1.2em; }
+            #welcome-section .quote { font-size: 1.2em; }
+            body { line-height: 1.6; }
+
+             #interspar-logo {
+                 height: 35px;
+                 margin-top: -35px;
+             }
+             nav button {
+                 font-size: 0.9em;
+                 padding: 8px 12px;
+             }
+             .cut-details p {
+                 font-size: 0.9em;
+             }
+             .cut-details p strong {
+                 display: block;
+                 margin-bottom: 2px;
+                 min-width: auto;
+             }
+              .cut-details p span {
+                 padding-left: 0;
+                 display: block;
+                 width: 100%;
+             }
+             #welcome-section p {
+                 font-size: 1em;
+             }
+             #enter-app-button {
+                 font-size: 1.1em;
+             }
+              #welcome-section .welcome-content {
+                 padding: 15px 20px;
+             }
+             #lightbox-close {
+                 top: 10px;
+                 right: 15px;
+                 font-size: 30px;
+             }
+              #lightbox-suggestion {
+                 font-size: 0.85em;
+                 max-width: 95%;
+             }
+         }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sezione di Benvenuto (Iniziale) -->
+    <section id="welcome-section">
+        <div class="welcome-content">
+            <h2>Benvenuti nell'Enciclopedia del Taglio</h2>
+            <p>Questo strumento è dedicato a tutti coloro che condividono la passione per l'arte della macelleria, un mestiere antico fatto di conoscenza, precisione e rispetto per la materia prima.</p>
+            <p>Un ringraziamento speciale va ad <strong>Alessio Enzo Sagaria</strong>, Tecnico della Carne, per la sua guida, la sua esperienza e per aver autorizzato e ispirato la creazione di questa enciclopedia.</p>
+            <p>Il nostro obiettivo è lavorare con intelligenza ed efficienza, valorizzando ogni taglio.</p>
+            <p class="quote">" Fai ciò che ami e non lavorerai un giorno della tua vita "</p>
+            <button id="enter-app-button">Entra nell'Enciclopedia</button>
+        </div>
+    </section>
+
+    <!-- Contenitore Principale dell'App (Inizialmente Nascosto) -->
+    <div id="encyclopedia-app">
+        <header>
+            <h1>Enciclopedia del Taglio</h1>
+            <img src="https://www.supernova-kranj.si/fileadmin/nova-gorica/logos/interspar-logo.png" alt="Logo Interspar" id="interspar-logo">
+        </header>
+
+        <div class="container">
+            <nav>
+                <ul>
+                    <li><button class="nav-button active" data-target="vitello">Vitello</button></li>
+                    <li><button class="nav-button" data-target="scottona">Scottona</button></li>
+                    <li><button class="nav-button" data-target="bovino">Bovino</button></li>
+                    <li><button class="nav-button" data-target="suino">Suino</button></li>
+                    <li><button class="nav-button" data-target="ovino">Ovino/Caprino/Maialino</button></li>
+                </ul>
+            </nav>
+
+             <!-- SEZIONI TAGLI -->
+             <!-- Sezione Vitello -->
+            <section id="vitello" class="content-section active">
+                <h2>Vitello</h2>
+                <div class="cuts-grid">
+                     <!-- Fettine Sceltissime -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://dl.dropboxusercontent.com/scl/fi/lp32vtaeantk0okbl9i0r/Fettine-Sceltissime-di-vitello.jpg?rlkey=r07nonbepb6gr4dqc194260ei&st=b9t72wmr');"
+                             data-cooking-suggestion="Ideali per cotture rapide in padella, scaloppine o involtini."></div>
+                        <div class="cut-details">
+                            <h3>Fettine Sceltissime</h3>
+                            <p><strong>PLU:</strong> <span>657</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>6mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Fesa francese, Noce, Scamone</span></p>
+                        </div>
+                    </div>
+                    <!-- Fettine Sottili -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Perfette per cotolette alla milanese, saltimbocca o cotture velocissime.">Immagine<br>Fettine Sottili</div>
+                        <div class="cut-details">
+                            <h3>Fettine Sottili</h3>
+                            <p><strong>PLU:</strong> <span>9522</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>2/3mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Fesa francese, Sottofesa, Fesone di spalla, Noce, Scamone</span></p>
+                        </div>
+                    </div>
+                    <!-- Braciole -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ottime alla griglia, in padella o impanate.">Immagine<br>Braciole</div>
+                        <div class="cut-details">
+                            <h3>Braciole</h3>
+                            <p><strong>PLU:</strong> <span>661</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>16/18mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Lombata</span></p>
+                        </div>
+                    </div>
+                    <!-- Bocconcini -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ideali per spezzatini, stufati a lunga cottura o ragù.">Immagine<br>Bocconcini</div>
+                        <div class="cut-details">
+                            <h3>Bocconcini</h3>
+                            <p><strong>PLU:</strong> <span>727</span></p>
+                            <p><strong>Formato:</strong> <span>3x3x3 cm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Tutti i tagli (preferibili con connettivo)</span></p>
+                        </div>
+                    </div>
+                    <!-- Polpa Sceltissima -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Perfetta per brasati, bolliti o arrosti succulenti.">Immagine<br>Polpa Sceltissima</div>
+                        <div class="cut-details">
+                            <h3>Polpa Sceltissima</h3>
+                            <p><strong>PLU:</strong> <span>698</span></p>
+                            <p><strong>Dimensione:</strong> <span>500/600g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Campanello, Stinco</span></p>
+                        </div>
+                    </div>
+                     <!-- Costine -->
+                     <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Deliziose al forno, in umido o alla griglia con salsa barbecue.">Immagine<br>Costine</div>
+                        <div class="cut-details">
+                            <h3>Costine</h3>
+                            <p><strong>PLU:</strong> <span>669</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>N/D</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Pancia</span></p>
+                        </div>
+                    </div>
+                     <!-- Arrosto Scelto -->
+                     <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ideale per arrosto al forno tradizionale o in casseruola.">Immagine<br>Arrosto Scelto</div>
+                        <div class="cut-details">
+                            <h3>Arrosto Scelto</h3>
+                            <p><strong>PLU:</strong> <span>700</span></p>
+                            <p><strong>Formato:</strong> <span>Intero</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Campanello, Spalla, Stinco</span></p>
+                        </div>
+                    </div>
+                     <!-- Ossobuco -->
+                     <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Classico in umido con risotto alla milanese, brasato lentamente.">Immagine<br>Ossobuco</div>
+                        <div class="cut-details">
+                            <h3>Ossobuco</h3>
+                            <p><strong>PLU:</strong> <span>685</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>Variabile</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Stinco anteriore, Stinco posteriore (meglio)</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sezione Scottona -->
+            <section id="scottona" class="content-section">
+                <h2>Scottona</h2>
+                 <div class="cuts-grid">
+                    <!-- Fettine Sceltissime -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/kgzzfdbm6n8cjsfgnq5lp/Sceltissime-di-scottona.jpg?rlkey=i1r4piaphxghnn57u447z2sbz&st=ibd9s83q&dl=1');"
+                             data-cooking-suggestion="Cottura rapida in padella, ideali per tagliate o carpacci."></div>
+                        <div class="cut-details">
+                            <h3>Fettine Sceltissime</h3>
+                            <p><strong>PLU:</strong> <span>374</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>6 mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Noce, Fesa francese</span></p>
+                        </div>
+                    </div>
+                    <!-- Fettine Sottili -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/t73l9au57hqmx7pqjvb6a/Fettine-Sottili-di-scottona.jpg?rlkey=hntt4ggz78vpwh27t6wgf5jr8&st=ok2f7shl&dl=1');"
+                             data-cooking-suggestion="Perfette per involtini, scaloppine veloci o straccetti."></div>
+                        <div class="cut-details">
+                            <h3>Fettine Sottili</h3>
+                            <p><strong>PLU:</strong> <span>1167</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>4mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Noce, Fesa francese, Sottofesa, Fesone di spalla, Girello</span></p>
+                        </div>
+                    </div>
+                    <!-- Fettine sottilissime -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/87r141rajmlt1488vzep3/Fettine-Sottilissime-di-scottona.jpg?rlkey=whfut1qaxklsncd26z5vg97b7&st=zd0kjotu&dl=1');"
+                             data-cooking-suggestion="Ideali per carpacci, cotture lampo tipo 'scottadito' o come base per involtini."></div>
+                        <div class="cut-details">
+                            <h3>Fettine Sottilissime</h3>
+                            <p><strong>PLU:</strong> <span>8440</span></p>
+                             <p><strong>Altezza Taglio:</strong> <span>0,5/1 mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Noce, Fesa francese, Sottofesa, Fesone di spalla, Girello</span></p>
+                        </div>
+                    </div>
+                     <!-- Pizzaiola -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/dtithzg235zbgdiuksbae/Pizzaiola-di-scottona.jpg?rlkey=v0oe76p89tslbob4nlwiwbhs2&st=ch280ysx&dl=1');"
+                             data-cooking-suggestion="Ottime in umido con pomodoro e origano, cottura lenta in casseruola."></div>
+                        <div class="cut-details">
+                            <h3>Pizzaiola</h3>
+                            <p><strong>PLU:</strong> <span>8449</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>6mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Reale, Campanello</span></p>
+                        </div>
+                    </div>
+                     <!-- Fiorentina -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Esclusivamente alla griglia o brace, cottura al sangue.">Immagine<br>Fiorentina</div>
+                        <div class="cut-details">
+                            <h3>Fiorentina</h3>
+                            <p><strong>PLU:</strong> <span>389</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>2cm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Lombata con filetto</span></p>
+                        </div>
+                    </div>
+                     <!-- Roastbeef -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Cottura al forno, lasciando l'interno rosato. Ottimo anche freddo.">Immagine<br>Roastbeef</div>
+                        <div class="cut-details">
+                            <h3>Roastbeef</h3>
+                            <p><strong>PLU:</strong> <span>376</span></p>
+                             <p><strong>Altezza Taglio:</strong> <span>1cm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Lombata senza filetto</span></p>
+                        </div>
+                    </div>
+                     <!-- Polpa Scelta -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/9xxondgmzap4vn36mspa4/Polpa-di-scottona.jpg?rlkey=d5hfu24gyuvd9081f2qatl0dh&st=nskz0hup&dl=1');"
+                             data-cooking-suggestion="Ideale per spezzatini, brasati, goulash o ragù ricchi."></div>
+                        <div class="cut-details">
+                            <h3>Polpa Scelta</h3>
+                            <p><strong>PLU:</strong> <span>6002</span></p>
+                            <p><strong>Dimensione:</strong> <span>500/600g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Campanello, Stinco</span></p>
+                        </div>
+                    </div>
+                     <!-- Bocconcini -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Perfetti per spezzatini saporiti, stufati o cotture lunghe in umido.">Immagine<br>Bocconcini</div>
+                        <div class="cut-details">
+                            <h3>Bocconcini</h3>
+                            <p><strong>PLU:</strong> <span>7503</span></p>
+                            <p><strong>Formato:</strong> <span>Cubetti (circa 3x3 cm)</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Tutti i tagli (preferibili con connettivo)</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sezione Bovino -->
+            <section id="bovino" class="content-section">
+                <h2>Bovino</h2>
+                <div class="cuts-grid">
+                    <!-- Fettine sceltissime -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://dl.dropboxusercontent.com/scl/fi/xc2caulswmd79sysst4qf/Bovino-fettine-Sceltissime.jpg?rlkey=wofzfo4oqz6z2bt5oty26j7f2&st=nkttfp5b');"
+                             data-cooking-suggestion="Ottime per cotture rapide in padella, scaloppine, involtini o una tagliata veloce."></div>
+                        <div class="cut-details">
+                            <h3>Fettine sceltissime</h3>
+                            <p><strong>PLU:</strong> <span>308</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>6mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Fesa francese, Noce</span></p>
+                        </div>
+                    </div>
+                    <!-- Fettine sottili -->
+                    <div class="cut-card">
+                         <div class="cut-image-placeholder"
+                              style="background-image: url('https://dl.dropboxusercontent.com/scl/fi/5f4xmz28e0r0sjj16d2tx/Bovino-fettine-sottili.jpg?rlkey=h5rugdzu2d38k4a3v66oojw9j&st=772y18rh');"
+                              data-cooking-suggestion="Ideali per cotolette, straccetti saltati in padella o involtini farciti."></div>
+                        <div class="cut-details">
+                            <h3>Fettine sottili</h3>
+                            <p><strong>PLU:</strong> <span>9514</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>2/3mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Fesa francese, Sottofesa, Noce, Scamone, Fesone di spalla, Girello</span></p>
+                        </div>
+                    </div>
+                    <!-- Fettine sottilissime -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://dl.dropboxusercontent.com/scl/fi/11qbrp4dq38qptxqk0s5b/Bovino-fettine-sottilissime.jpg?rlkey=7mlqm4dhffp5k5a668eqck0q2&st=iejn861k');"
+                             data-cooking-suggestion="Perfette per carpacci, cotture rapidissime 'scottadito' o come base per involtini delicati."></div>
+                        <div class="cut-details">
+                            <h3>Fettine sottilissime</h3>
+                            <p><strong>PLU:</strong> <span>440</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>0,5/1mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Sottofesa, Fesa francese, Noce, Scamone, Girello, Fesone di spalla</span></p>
+                        </div>
+                    </div>
+                    <!-- Scamone -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/2jeo5kie3gwkkn6md7kmr/Scamone-di-bovino.jpg?rlkey=7q8xxw2uic31ey9dx4rxq2pnl&st=cttom120&dl=1');"
+                             data-cooking-suggestion="Taglio versatile: ottimo per fettine da griglia/padella, arrosto o roast-beef."></div>
+                        <div class="cut-details">
+                            <h3>Scamone</h3>
+                            <p><strong>PLU:</strong> <span>324</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>0,8/1 cm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Scamone</span></p>
+                        </div>
+                    </div>
+                    <!-- Costantina -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/pgnnlk8c6sl2knfu60j4n/Costantina-di-bovino.jpg?rlkey=6bi6fi2yl07tle5hm5f2wmnaj&st=9guapazi&dl=1');"
+                             data-cooking-suggestion="Ideale per griglia, brace o cottura lenta in umido."></div>
+                        <div class="cut-details">
+                            <h3>Costantina</h3>
+                            <p><strong>PLU:</strong> <span>8045</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>1 cm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Sottospalla (reale basso)</span></p>
+                        </div>
+                    </div>
+                    <!-- Reale da griglia -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/ivl89bqqdx2trt75vpha7/Reale-da-griglia-di-bovino.jpg?rlkey=ol7iddgi3m4a6h183b09co8e8&st=01vb94kf&dl=1');"
+                             data-cooking-suggestion="Perfetto per grigliate saporite, cottura su piastra o brace."></div>
+                        <div class="cut-details">
+                            <h3>Reale da griglia</h3>
+                            <p><strong>PLU:</strong> <span>1349</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>13 mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Reale</span></p>
+                        </div>
+                    </div>
+                    <!-- Pizzaiola -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Cottura in umido con pomodoro, capperi e origano, lenta e a fuoco basso.">Immagine<br>Pizzaiola</div>
+                        <div class="cut-details">
+                            <h3>Pizzaiola</h3>
+                            <p><strong>PLU:</strong> <span>266</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>6mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Reale, Campanello</span></p>
+                        </div>
+                    </div>
+                    <!-- Bocconcini -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/blxfw7pwpi4a5a1hs04ar/Bocconcini-di-bovino.jpg?rlkey=0nkqcgury62ld5rhrtecc6gp8&st=gikwdzq3&dl=1');"
+                             data-cooking-suggestion="Ideali per spezzatini, stufati, ragù robusti o goulash."></div>
+                        <div class="cut-details">
+                            <h3>Bocconcini</h3>
+                            <p><strong>PLU:</strong> <span>275</span></p>
+                            <p><strong>Formato:</strong> <span>3x3x3 cm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Tutti i tagli (meglio con connettivo)</span></p>
+                        </div>
+                    </div>
+                    <!-- Tasto -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ottimo per bollito misto, brodo o stracotto.">Immagine<br>Tasto</div>
+                        <div class="cut-details">
+                            <h3>Tasto</h3>
+                            <p><strong>PLU:</strong> <span>276</span></p>
+                            <p><strong>Dimensione:</strong> <span>400/600g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Pancia</span></p>
+                        </div>
+                    </div>
+                    <!-- Punta di petto -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/671zwtk6rqfnrwrqc6kds/Punta-di-petto-di-bovino.jpg?rlkey=a50fr4agfr13mi5zeo4s0sja0&st=hgwhgvwo&dl=1');"
+                             data-cooking-suggestion="Perfetta per bollito, brasato o cottura lenta tipo brisket."></div>
+                        <div class="cut-details">
+                            <h3>Punta di petto</h3>
+                            <p><strong>PLU:</strong> <span>4706</span></p>
+                            <p><strong>Dimensione:</strong> <span>400/600g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Pancia</span></p>
+                        </div>
+                    </div>
+                    <!-- Cappello del prete -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Eccellente per brasati, stracotti o bolliti saporiti.">Immagine<br>Cappello del Prete</div>
+                        <div class="cut-details">
+                            <h3>Cappello del prete</h3>
+                            <p><strong>PLU:</strong> <span>9521</span></p>
+                            <p><strong>Dimensione:</strong> <span>500/600g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Spalla</span></p>
+                        </div>
+                    </div>
+                    <!-- Polpa scelta -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ideale per spezzatini, goulash, ragù o cotture in umido.">Immagine<br>Polpa Scelta</div>
+                        <div class="cut-details">
+                            <h3>Polpa scelta</h3>
+                            <p><strong>PLU:</strong> <span>310</span></p>
+                            <p><strong>Dimensione:</strong> <span>500/600g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Stinco, Campanello</span></p>
+                        </div>
+                    </div>
+                    <!-- Polpa con osso -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ottima per brodo, bollito misto o spezzatino con osso.">Immagine<br>Polpa con Osso</div>
+                        <div class="cut-details">
+                            <h3>Polpa con osso</h3>
+                            <p><strong>PLU:</strong> <span>326</span></p>
+                            <p><strong>Dimensione:</strong> <span>400/500g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Stinco, Campanello</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sezione Suino -->
+            <section id="suino" class="content-section">
+                <h2>Suino</h2>
+                 <div class="cuts-grid">
+                    <!-- Fettine lonza -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/tty7hmxn4a81bzsnz5js1/Fettine-di-lonza.jpg?rlkey=c5xulmt3fx1nz1vl74g8ss6ti&st=nfukyh3b&dl=1');"
+                             data-cooking-suggestion="Cottura veloce in padella, alla griglia o impanate."></div>
+                        <div class="cut-details">
+                            <h3>Fettine lonza</h3>
+                            <p><strong>PLU:</strong> <span>934</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>6mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Lonza</span></p>
+                        </div>
+                    </div>
+                    <!-- Fettine lonza sottile -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/6kp1hz82y8hgd4dayli7z/Fettine-sottili-di-lonza.jpg?rlkey=z4qy94gu82slsbihvw44d1gkq&st=wuxk4979&dl=1');"
+                             data-cooking-suggestion="Perfette per scaloppine, involtini o cotture rapidissime."></div>
+                        <div class="cut-details">
+                            <h3>Fettine lonza sottile</h3>
+                            <p><strong>PLU:</strong> <span>923</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>4mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Lonza</span></p>
+                        </div>
+                    </div>
+                    <!-- Lonza a trancio -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://www.dropbox.com/scl/fi/cp26lbg6a9oxfjc8ncwkr/Lonza-a-pezzi.jpg?rlkey=bsgf6vbwjumr9imic44fzix4w&st=xb6zf4ns&dl=1');"
+                             data-cooking-suggestion="Ideale per arrosto al forno (intero o farcito) o per ottenere fettine più spesse."></div>
+                        <div class="cut-details">
+                            <h3>Lonza a trancio</h3>
+                            <p><strong>PLU:</strong> <span>779</span></p>
+                            <p><strong>Dimensione:</strong> <span>500/600g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Lonza</span></p>
+                        </div>
+                    </div>
+                    <!-- Bocconcini -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ottimi per spezzatini, stufati, ragù bianco o spiedini.">Immagine<br>Bocconcini</div>
+                        <div class="cut-details">
+                            <h3>Bocconcini</h3>
+                            <p><strong>PLU:</strong> <span>957</span></p>
+                            <p><strong>Formato:</strong> <span>2x2x2 cm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Spalla, Coppa</span></p>
+                        </div>
+                    </div>
+                    <!-- Arrosto -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Perfetto per arrosto al forno, in casseruola o brasato.">Immagine<br>Arrosto</div>
+                        <div class="cut-details">
+                            <h3>Arrosto</h3>
+                            <p><strong>PLU:</strong> <span>9523</span></p>
+                            <p><strong>Dimensione:</strong> <span>500/600g</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Spalla</span></p>
+                        </div>
+                    </div>
+                    <!-- Pancetta fettine -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Croccante in padella, al forno o per avvolgere altri ingredienti.">Immagine<br>Pancetta Fettine</div>
+                        <div class="cut-details">
+                            <h3>Pancetta fettine</h3>
+                            <p><strong>PLU:</strong> <span>1051</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>7mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Pancetta con cotenna</span></p>
+                        </div>
+                    </div>
+                     <!-- Pancetta sottile -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ideale per soffritti, sughi (amatriciana, carbonara) o resa croccante.">Immagine<br>Pancetta Sottile</div>
+                        <div class="cut-details">
+                            <h3>Pancetta sottile</h3>
+                            <p><strong>PLU:</strong> <span>940</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>4mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Pancetta senza cotenna</span></p>
+                        </div>
+                    </div>
+                     <!-- Braciole nodino -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder"
+                             style="background-image: url('https://dl.dropboxusercontent.com/scl/fi/xa7x663bab3ej9z3245vo/Braciole-nodino.jpg?rlkey=2fbc3ohu0ym5nnj0e5v3plmas&st=un52fu5c');"
+                             data-cooking-suggestion="Perfette per griglia, brace o cottura in padella."></div>
+                        <div class="cut-details">
+                            <h3>Braciole nodino</h3>
+                            <p><strong>PLU:</strong> <span>1020</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>16mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Lombata</span></p>
+                        </div>
+                    </div>
+                    <!-- Coppa fettine -->
+                    <div class="cut-card">
+                         <div class="cut-image-placeholder"
+                              style="background-image: url('https://dl.dropboxusercontent.com/scl/fi/fqcy0flwedhf2vltuh4ry/Suino-coppa-a-fette.jpg?rlkey=ca4odz2i6vjk6kzpos1hh5658&st=vnkknu86');"
+                              data-cooking-suggestion="Molto saporite, ottime alla griglia, in padella o per involtini robusti."></div>
+                        <div class="cut-details">
+                            <h3>Coppa fettine</h3>
+                            <p><strong>PLU:</strong> <span>9616</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>7mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Coppa</span></p>
+                        </div>
+                    </div>
+                     <!-- Coppa con osso -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ideali per griglia, brace o cottura lenta al forno/casseruola.">Immagine<br>Coppa con Osso</div>
+                        <div class="cut-details">
+                            <h3>Coppa con osso</h3>
+                            <p><strong>PLU:</strong> <span>1009</span></p>
+                            <p><strong>Altezza Taglio:</strong> <span>16/18mm</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Coppa con osso</span></p>
+                        </div>
+                    </div>
+                    <!-- Costine -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Classiche al forno, alla griglia con salsa BBQ o in umido.">Immagine<br>Costine</div>
+                        <div class="cut-details">
+                            <h3>Costine</h3>
+                            <p><strong>PLU:</strong> <span>982</span></p>
+                            <p><strong>Quantità:</strong> <span>4/5 PZ</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Costine</span></p>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+            <!-- Sezione Ovino/Caprino/Maialino -->
+            <section id="ovino" class="content-section">
+                <h2>Ovino / Caprino / Maialino da Latte</h2>
+                 <div class="cuts-grid">
+                    <!-- Agnello cosciotto -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ideale arrosto al forno, intero o disossato e farcito.">Immagine<br>Agnello Cosciotto</div>
+                        <div class="cut-details">
+                            <h3>Agnello cosciotto</h3>
+                            <p><strong>PLU:</strong> <span>1801</span></p>
+                            <p><strong>Formato:</strong> <span>Intero</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Cosciotto</span></p>
+                        </div>
+                    </div>
+                    <!-- Agnello anteriore -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ottimo per spezzatini, stufati, ragù o cotture lente in umido.">Immagine<br>Agnello Anteriore</div>
+                        <div class="cut-details">
+                            <h3>Agnello anteriore</h3>
+                            <p><strong>PLU:</strong> <span>1800</span></p>
+                            <p><strong>Formato:</strong> <span>Intero</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Anteriore (Spalla/Collo)</span></p>
+                        </div>
+                    </div>
+                     <!-- Agnello costolette -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Classiche 'scottadito' alla griglia/brace o in padella.">Immagine<br>Agnello Costolette</div>
+                        <div class="cut-details">
+                            <h3>Agnello costolette</h3>
+                            <p><strong>PLU:</strong> <span>1816</span></p>
+                            <p><strong>Formato:</strong> <span>Costolette</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Carrè/Costole</span></p>
+                        </div>
+                    </div>
+                    <!-- Agnello taglio misto -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Perfetto per spezzatino misto, ragù o cotture in umido.">Immagine<br>Agnello Taglio Misto</div>
+                        <div class="cut-details">
+                            <h3>Agnello taglio misto</h3>
+                            <p><strong>PLU:</strong> <span>1804</span></p>
+                            <p><strong>Formato:</strong> <span>Misto</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Tagli vari</span></p>
+                        </div>
+                    </div>
+                    <!-- Agnellone lombatine -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Simili alle costolette, ottime alla griglia, brace o padella.">Immagine<br>Agnellone Lombatine</div>
+                        <div class="cut-details">
+                            <h3>Agnellone lombatine</h3>
+                            <p><strong>PLU:</strong> <span>1763</span></p>
+                            <p><strong>Quantità:</strong> <span>6/8 pz</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Lombata</span></p>
+                        </div>
+                    </div>
+                     <!-- Porchetta da latte -->
+                    <div class="cut-card">
+                         <div class="cut-image-placeholder"
+                              style="background-image: url('https://dl.dropboxusercontent.com/scl/fi/s7k217ln2uzgfkgj0ou1n/Maialino-da-latte.jpg?rlkey=w3w3mhf286nm8iv8vpyskk8kh&st=9tggs1ad');"
+                              data-cooking-suggestion="Tradizionalmente arrosto al forno o allo spiedo fino a cotenna croccante."></div>
+                        <div class="cut-details">
+                            <h3>Porchetta da latte</h3>
+                            <p><strong>PLU:</strong> <span>N/D</span></p>
+                            <p><strong>Formato:</strong> <span>Intero Arrosto</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Maialino intero</span></p>
+                        </div>
+                    </div>
+                     <!-- Capretto taglio misto -->
+                    <div class="cut-card">
+                        <div class="cut-image-placeholder" data-cooking-suggestion="Ideale per spezzatino, capretto al forno con patate o in umido.">Immagine<br>Capretto Taglio Misto</div>
+                        <div class="cut-details">
+                            <h3>Capretto taglio misto</h3>
+                            <p><strong>PLU:</strong> <span>N/D</span></p>
+                             <p><strong>Formato:</strong> <span>Misto</span></p>
+                            <p><strong>Pezzi Anatomici:</strong> <span>Tagli vari</span></p>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+             <!-- FINE SEZIONI TAGLI -->
+
+        </div> <!-- Fine .container -->
+
+        <footer>
+            <p>Web app creata da: <strong>Armillotta Lorenzo</strong></p>
+            <p>Autorizzata dal Tecnico della Carne: <strong>Alessio Enzo Sagaria</strong></p>
+            <p>Tagli realizzati presso la macelleria <strong>Interspar di Carpi</strong></p>
+        </footer>
+    </div> <!-- Fine #encyclopedia-app -->
+
+    <!-- Lightbox Structure -->
+    <div id="lightbox-overlay">
+        <span id="lightbox-close">&times;</span>
+        <div id="lightbox-content">
+            <img id="lightbox-image" src="" alt="Immagine ingrandita">
+            <p id="lightbox-suggestion"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementi della Welcome Page e dell'App
+            const welcomeSection = document.getElementById('welcome-section');
+            const encyclopediaApp = document.getElementById('encyclopedia-app');
+            const enterButton = document.getElementById('enter-app-button');
+
+            // Elementi dell'Enciclopedia (Navigazione)
+            const navButtons = document.querySelectorAll('.nav-button');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            // Elementi Lightbox
+            const lightboxOverlay = document.getElementById('lightbox-overlay');
+            const lightboxImage = document.getElementById('lightbox-image');
+            const lightboxClose = document.getElementById('lightbox-close');
+            const lightboxSuggestion = document.getElementById('lightbox-suggestion');
+            const cutImagePlaceholders = document.querySelectorAll('.cut-image-placeholder');
+
+            // --- Logica per entrare nell'app ---
+            if (enterButton) {
+                enterButton.addEventListener('click', () => {
+                    if (welcomeSection) welcomeSection.style.display = 'none';
+                    if (encyclopediaApp) encyclopediaApp.style.display = 'block';
+                    if (encyclopediaApp) encyclopediaApp.scrollIntoView({ behavior: 'smooth' });
+                });
+            } else {
+                 if (encyclopediaApp) encyclopediaApp.style.display = 'block';
+                 if (welcomeSection) welcomeSection.style.display = 'none';
+            }
+
+            // --- Logica di Navigazione Interna all'Enciclopedia ---
+            function showSection(targetId) {
+                contentSections.forEach(section => {
+                    section.classList.toggle('active', section.id === targetId);
+                });
+            }
+
+            function setActiveButton(activeButton) {
+                 navButtons.forEach(button => {
+                    button.classList.toggle('active', button === activeButton);
+                });
+            }
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.getAttribute('data-target');
+                    showSection(targetId);
+                    setActiveButton(button);
+                });
+            });
+
+             if (!document.querySelector('.content-section.active') && contentSections.length > 0) {
+                 const firstNavButton = document.querySelector('.nav-button');
+                 if(firstNavButton) {
+                     const firstTargetId = firstNavButton.getAttribute('data-target');
+                     showSection(firstTargetId);
+                     setActiveButton(firstNavButton);
+                 }
+            }
+
+            // --- Logica Lightbox ---
+            if (cutImagePlaceholders && lightboxOverlay && lightboxImage && lightboxClose && lightboxSuggestion) {
+                cutImagePlaceholders.forEach(placeholder => {
+                    placeholder.addEventListener('click', () => {
+                        const bgImageStyle = placeholder.style.backgroundImage;
+                        const suggestionText = placeholder.getAttribute('data-cooking-suggestion'); // Get suggestion regardless of image
+
+                        // Only open lightbox if there is an actual background image
+                        if (bgImageStyle && bgImageStyle !== 'none' && bgImageStyle !== '') {
+                            const imageUrl = bgImageStyle.slice(5, -2); // Correctly extracts URL from "url('...')"
+                            lightboxImage.src = imageUrl;
+                            lightboxSuggestion.textContent = suggestionText || ""; // Set suggestion text
+                            lightboxOverlay.style.display = 'flex';
+                        }
+                        // If no image, maybe log or do nothing?
+                        // console.log("No image to display for this item, suggestion:", suggestionText);
+                    });
+                });
+
+                function closeLightbox() {
+                    lightboxOverlay.style.display = 'none';
+                    lightboxImage.src = "";
+                    lightboxSuggestion.textContent = "";
+                }
+
+                lightboxClose.addEventListener('click', closeLightbox);
+
+                lightboxOverlay.addEventListener('click', (event) => {
+                    if (event.target === lightboxOverlay) {
+                       closeLightbox();
+                    }
+                });
+            }
+
+        });
+    </script>
+
+</body>
+</html>

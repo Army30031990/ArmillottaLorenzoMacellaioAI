@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riordino Pollame - Gestione Giacenze v(LA)</title>
+    <style>
+        /* CSS (aggiornato stile logo personale e aggiunto stile overlay) */
+        body { font-family: sans-serif; line-height: 1.6; margin: 20px; background-color: #f4f4f4; }
+        .main-container { max-width: 1400px; margin: 0 auto; padding-bottom: 80px; position: relative; }
+        .view-container { }
+        #order-view { }
+        #stock-management-view { display: none; }
+
+        .flex-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; flex: 1; min-width: 400px; }
+        .container.sales-history { flex: 1.5; min-width: 550px; }
+        .container.stock-management { flex: 1; }
+
+        h1, h2, h3 { color: #333; text-align: center; margin-bottom: 20px; }
+        h1 { width: 100%; margin-bottom: 30px; font-size: 1.8em; }
+        h2 { font-size: 1.3em; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        select { padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        button { padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; background-color: #5cb85c; color: white; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button.secondary { background-color: #6c757d; }
+        button.secondary:hover { background-color: #5a6268; }
+        button:hover { background-color: #4cae4c; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9em; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: middle; }
+        th { background-color: #f2f2f2; font-weight: bold; text-align: center; white-space: nowrap; }
+        th.numeric, td.numeric { text-align: right; }
+        #sales-history-table th.day-header, #stock-table th.stock-header { min-width: 45px; text-align: center; }
+        #sales-history-table td, #stock-table td.numeric { text-align: center; }
+
+        td input[type="number"] { width: 55px; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: right; font-size: 0.95em; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        #order-summary { margin-top: 20px; padding: 15px; border: 1px solid #eee; background-color: #e9f5e9; border-radius: 5px; }
+        #order-summary h3 { margin-top: 0; color: #3c763d; }
+        #order-summary ul { list-style: none; padding: 0; }
+        #order-summary li { margin-bottom: 5px; padding: 5px; border-bottom: 1px dashed #ccc; font-size: 0.9em; }
+        #order-summary li small { display: block; margin-left: 10px; color: #555; }
+        #date-info { background-color: #d9edf7; border: 1px solid #bce8f1; color: #31708f; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; text-align: center; width: 100%; box-sizing: border-box; }
+        .highlight { font-weight: bold; color: #a94442; }
+        .positive-order { font-weight: bold; color: #c00; }
+        .product-name-col { min-width: 150px; font-weight: 500; text-align: left !important; }
+        #products-table th, #stock-table th { text-align: center; }
+        #products-table td, #stock-table td { text-align: right; }
+        #products-table td.product-name-col, #stock-table td.product-name-col { text-align: left; }
+        th[data-tooltip] { position: relative; cursor: help; }
+        th[data-tooltip]::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-5px); background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; font-size: 0.85em; white-space: nowrap; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; z-index: 10; }
+        th[data-tooltip]:hover::after { opacity: 1; visibility: visible; }
+
+        .navigation-buttons { display: flex; justify-content: space-between; margin-top: 30px; padding: 0 10px; gap: 20px; position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 1400px; }
+        .navigation-buttons button { flex: 1; margin-top: 0; margin-bottom: 0; }
+
+        .header-logo { display: block; margin: 0 auto 20px auto; max-width: 250px; height: auto; }
+        .footer-attribution { font-size: 0.8em; color: #666; text-align: center; margin-top: 50px; margin-bottom: 20px; width: 100%; }
+        .personal-logo {
+            max-height: 40px; /* Aumentato altezza max */
+            height: auto;
+            vertical-align: middle;
+            margin-right: 8px;
+            cursor: pointer; /* Indica che è cliccabile */
+            transition: opacity 0.2s;
+        }
+        .personal-logo:hover {
+             opacity: 0.8; /* Effetto hover leggero */
+        }
+        .footer-attribution .attribution-text { display: inline-block; vertical-align: middle; margin: 0; }
+
+        /* Stili per l'overlay fullscreen */
+        .fullscreen-overlay {
+            display: none; /* Nascosto di default */
+            position: fixed; /* Copre l'intera viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); /* Sfondo nero semitrasparente */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Sopra tutto il resto */
+            cursor: pointer; /* Indica che cliccare lo sfondo chiude */
+        }
+        .fullscreen-overlay img {
+            display: block;
+            max-width: 90%; /* Massimo 90% larghezza schermo */
+            max-height: 90%; /* Massimo 90% altezza schermo */
+            object-fit: contain; /* Mantiene proporzioni */
+            cursor: default; /* Cursore normale sull'immagine */
+        }
+        .close-overlay-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 35px;
+            color: #fff;
+            cursor: pointer;
+            line-height: 1;
+            font-weight: bold;
+            text-shadow: 0 1px 0 #000;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Logo INIZIO -->
+<img src="https://despar.s3-eu-west-1.amazonaws.com/webroot/img/asset/immagine_lavora_con_noi_despar.jpg"
+     alt="Logo Despar Aspiag Service" class="header-logo">
+
+<div class="main-container">
+    <h1>Gestione Riordino Pollame</h1>
+
+    <div id="date-info">
+        Caricamento informazioni data...
+    </div>
+
+    <!-- Selezione Fornitore -->
+    <label for="supplier-select">Seleziona Fornitore:</label>
+    <select id="supplier-select"></select>
+
+    <!-- Vista Riordino -->
+    <div id="order-view" class="view-container">
+        <div class="flex-container">
+            <!-- Colonna Sinistra: Storico Vendite -->
+            <div class="container sales-history">
+                <h2>Storico Vendite Sett. Prec. (Pezzi singoli)</h2>
+                <table id="sales-history-table">
+                    <thead>
+                        <tr>
+                            <th class="product-name-col">Nome Prodotto</th>
+                            <th class="day-header">Lun</th><th class="day-header">Mar</th><th class="day-header">Mer</th>
+                            <th class="day-header">Gio</th><th class="day-header">Ven</th><th class="day-header">Sab</th><th class="day-header">Dom</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-history-tbody"></tbody>
+                </table>
+                 <small>Modifica le vendite in <strong>pezzi singoli</strong>.</small>
+            </div>
+
+            <!-- Colonna Destra: Assortimento, Calcolo e Riepilogo Ordine -->
+            <div class="container">
+                <h2>Assortimento e Calcolo Riordino (in Colli)</h2>
+                <table id="products-table">
+                    <thead>
+                        <tr>
+                            <th class="product-name-col">Nome Prodotto</th>
+                            <th data-tooltip="Pezzi per collo">Imb.</th>
+                            <th data-tooltip="Colli attualmente in giacenza">Giac.</th>
+                            <th data-tooltip="Colli minimi da tenere (sempre 1)">Min.</th>
+                            <th data-tooltip="Colli necessari a coprire le vendite nel periodo DOPO la consegna">Colli Copertura</th>
+                            <th data-tooltip="Colli da ordinare (considera Giac. Min, Vendite Lead Time, Vendite Copertura e Giac. Attuale)">Ordine Sugg. (Colli)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-tbody"></tbody>
+                </table>
+                <button id="calculate-btn">Calcola Ordine Suggerito</button>
+                <div id="order-summary" style="display: none;">
+                    <h3>Riepilogo Ordine Suggerito (Colli)</h3>
+                    <ul id="order-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vista Gestione Giacenze -->
+    <div id="stock-management-view" class="view-container">
+         <div class="container stock-management">
+             <h2>Gestione Giacenze Manuale (in Colli)</h2>
+             <table id="stock-table">
+                 <thead>
+                     <tr>
+                         <th class="product-name-col">Nome Prodotto</th>
+                         <th data-tooltip="Pezzi per collo">Imb.</th>
+                         <th class="stock-header" data-tooltip="Valore attuale in memoria">Giac. Attuale</th>
+                         <th class="stock-header" data-tooltip="Inserisci nuovo valore e premi Invio/cambia campo">Nuova Giacenza (Colli)</th>
+                     </tr>
+                 </thead>
+                 <tbody id="stock-tbody"></tbody>
+             </table>
+             <small>Modifica la giacenza in <strong>colli</strong>. Premi Invio o clicca fuori per salvare.</small>
+         </div>
+    </div>
+
+    <!-- Pulsanti di Navigazione tra Viste -->
+    <div class="navigation-buttons">
+         <button id="go-to-order-btn" class="secondary" style="display: none;">Vai al Riordino</button>
+         <button id="go-to-stock-btn" class="secondary">Modifica Giacenze Manualmente</button>
+    </div>
+
+</div> <!-- Fine Main Container -->
+
+<!-- Footer Attribuzione -->
+<div class="footer-attribution">
+    <!-- Rendi l'immagine cliccabile -->
+    <img src="https://www.dropbox.com/scl/fi/u4e0j2zkce96z33iqxnho/1745649177877.jpg?rlkey=gcpduovbd7wazbcqx3pqlmu1h&st=ud3qgnhe&raw=1"
+         alt="Logo Lorenzo Armillotta" class="personal-logo" id="personal-logo-clickable">
+    <span class="attribution-text">Realizzato da Armillotta Lorenzo per Aspiag Service</span>
+</div>
+
+<!-- Overlay per Fullscreen Logo -->
+<div id="fullscreen-overlay" class="fullscreen-overlay">
+    <span class="close-overlay-btn" id="close-overlay">&times;</span>
+    <!-- Immagine nell'overlay (src verrà impostato da JS) -->
+    <img src="" alt="Logo Personale Fullscreen" id="fullscreen-logo-img">
+</div>
+
+
+<script>
+    // --- DATABASE DATI FINTI (Esteso) ---
+    const suppliersData = [
+         { name: "Aia", products: [ { id: "aia01", name: "Petto di Pollo Aia", packaging: 6, currentStock: 5, minStock: 1, previousWeekSales: { mon: 10, tue: 12, wed: 8, thu: 15, fri: 18, sat: 20, sun: 3 } }, { id: "aia02", name: "Cosce di Pollo Aia", packaging: 8, currentStock: 3, minStock: 1, previousWeekSales: { mon: 8, tue: 7, wed: 6, thu: 10, fri: 12, sat: 15, sun: 2 } }, { id: "aia03", name: "Fusi di Pollo Aia", packaging: 8, currentStock: 0, minStock: 1, previousWeekSales: { mon: 5, tue: 6, wed: 4, thu: 8, fri: 9, sat: 11, sun: 1 } }, { id: "aia04", name: "Ali di Pollo Aia", packaging: 6, currentStock: 7, minStock: 1, previousWeekSales: { mon: 15, tue: 18, wed: 12, thu: 20, fri: 25, sat: 30, sun: 5 } }, { id: "aia05", name: "Sovracosce Pollo Aia", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 6, tue: 5, wed: 4, thu: 7, fri: 8, sat: 10, sun: 1 } }, { id: "aia06", name: "Pollo Intero Aia", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 2, tue: 3, wed: 1, thu: 4, fri: 5, sat: 6, sun: 2 } }, { id: "aia07", name: "Bocconcini di Pollo Aia", packaging: 6, currentStock: 4, minStock: 1, previousWeekSales: { mon: 7, tue: 8, wed: 5, thu: 10, fri: 11, sat: 13, sun: 2 } }, { id: "aia08", name: "Hamburger di Pollo Aia", packaging: 8, currentStock: 6, minStock: 1, previousWeekSales: { mon: 20, tue: 22, wed: 18, thu: 25, fri: 30, sat: 35, sun: 8 } }, { id: "aia09", name: "Salsiccia di Pollo Aia", packaging: 6, currentStock: 2, minStock: 1, previousWeekSales: { mon: 12, tue: 15, wed: 10, thu: 18, fri: 20, sat: 24, sun: 4 } }, { id: "aia10", name: "Spiedini di Pollo Aia", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 5, tue: 7, wed: 4, thu: 8, fri: 10, sat: 12, sun: 3 } }, { id: "aia11", name: "Cotoletta di Pollo Aia", packaging: 8, currentStock: 8, minStock: 1, previousWeekSales: { mon: 18, tue: 20, wed: 15, thu: 24, fri: 28, sat: 32, sun: 7 } }, { id: "aia12", name: "Rollè di Pollo Aia", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 2, wed: 1, thu: 3, fri: 4, sat: 5, sun: 2 } }, { id: "aia13", name: "Pollo Arrosto Pronto Aia", packaging: 6, currentStock: 0, minStock: 1, previousWeekSales: { mon: 0, tue: 0, wed: 2, thu: 3, fri: 4, sat: 6, sun: 1 } }, { id: "aia14", name: "Fegatini di Pollo Aia", packaging: 8, currentStock: 4, minStock: 1, previousWeekSales: { mon: 3, tue: 4, wed: 2, thu: 5, fri: 6, sat: 7, sun: 1 } }, { id: "aia15", name: "Durelli di Pollo Aia", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 2, tue: 3, wed: 1, thu: 4, fri: 4, sat: 5, sun: 0 } }, { id: "aia16", name: "Colli di Pollo Aia", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 0, tue: 1, wed: 0, thu: 1, fri: 2, sat: 2, sun: 0 } }, { id: "aia17", name: "Petto Pollo Aequilibrium", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 5, tue: 6, wed: 4, thu: 7, fri: 8, sat: 9, sun: 1 } }, { id: "aia18", name: "Affettato Pollo Aequilibrium", packaging: 8, currentStock: 5, minStock: 1, previousWeekSales: { mon: 8, tue: 10, wed: 7, thu: 12, fri: 14, sat: 16, sun: 3 } }, { id: "aia19", name: "Wurstel Pollo Aequilibrium", packaging: 6, currentStock: 2, minStock: 1, previousWeekSales: { mon: 6, tue: 8, wed: 5, thu: 9, fri: 10, sat: 12, sun: 2 } }, { id: "aia20", name: "Tacchino Intero Aia", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 0, tue: 0, wed: 0, thu: 1, fri: 1, sat: 2, sun: 1 } }, ] },
+         { name: "Amadori", products: [ { id: "ama01", name: "Petto di Pollo Amadori", packaging: 8, currentStock: 6, minStock: 1, previousWeekSales: { mon: 12, tue: 14, wed: 10, thu: 16, fri: 20, sat: 22, sun: 4 } }, { id: "ama02", name: "Cosce di Pollo Amadori", packaging: 6, currentStock: 4, minStock: 1, previousWeekSales: { mon: 9, tue: 8, wed: 7, thu: 11, fri: 13, sat: 16, sun: 3 } }, { id: "ama03", name: "Fusi di Pollo Campese Amadori", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 6, tue: 7, wed: 5, thu: 9, fri: 10, sat: 12, sun: 2 } }, { id: "ama04", name: "Ali di Pollo Amadori", packaging: 6, currentStock: 5, minStock: 1, previousWeekSales: { mon: 14, tue: 16, wed: 11, thu: 19, fri: 23, sat: 28, sun: 6 } }, { id: "ama05", name: "Sovracosce Pollo Campese Amadori", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 7, tue: 6, wed: 5, thu: 8, fri: 9, sat: 11, sun: 1 } }, { id: "ama06", name: "Pollo Intero Campese Amadori", packaging: 6, currentStock: 2, minStock: 1, previousWeekSales: { mon: 3, tue: 4, wed: 2, thu: 5, fri: 6, sat: 7, sun: 3 } }, { id: "ama07", name: "Hamburger Amadori", packaging: 8, currentStock: 7, minStock: 1, previousWeekSales: { mon: 22, tue: 25, wed: 20, thu: 28, fri: 33, sat: 38, sun: 9 } }, { id: "ama08", name: "Salsiccia Luganega Amadori", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 13, tue: 16, wed: 11, thu: 19, fri: 22, sat: 26, sun: 5 } }, { id: "ama09", name: "Spiedì Amadori", packaging: 6, currentStock: 0, minStock: 1, previousWeekSales: { mon: 6, tue: 8, wed: 5, thu: 9, fri: 11, sat: 14, sun: 4 } }, { id: "ama10", name: "Birbe Amadori", packaging: 8, currentStock: 9, minStock: 1, previousWeekSales: { mon: 25, tue: 28, wed: 22, thu: 30, fri: 35, sat: 40, sun: 10 } }, { id: "ama11", name: "Wudy Classico Amadori", packaging: 6, currentStock: 10, minStock: 1, previousWeekSales: { mon: 30, tue: 35, wed: 28, thu: 40, fri: 45, sat: 50, sun: 12 } }, { id: "ama12", name: "Pollo Arrosto Qualità 10+ Amadori", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 1, wed: 2, thu: 4, fri: 5, sat: 7, sun: 2 } }, { id: "ama13", name: "Fesa di Tacchino Amadori", packaging: 8, currentStock: 4, minStock: 1, previousWeekSales: { mon: 8, tue: 9, wed: 7, thu: 11, fri: 13, sat: 15, sun: 3 } }, { id: "ama14", name: "Hamburger di Tacchino Amadori", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 10, tue: 12, wed: 9, thu: 14, fri: 16, sat: 18, sun: 4 } }, { id: "ama15", name: "Arrosto di Tacchino Amadori", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 2, tue: 3, wed: 2, thu: 4, fri: 5, sat: 6, sun: 2 } }, { id: "ama16", name: "Macinato Misto Amadori", packaging: 6, currentStock: 2, minStock: 1, previousWeekSales: { mon: 5, tue: 6, wed: 4, thu: 7, fri: 8, sat: 9, sun: 1 } }, { id: "ama17", name: "Impanati Misti Amadori", packaging: 8, currentStock: 5, minStock: 1, previousWeekSales: { mon: 15, tue: 17, wed: 13, thu: 19, fri: 22, sat: 25, sun: 6 } }, { id: "ama18", name: "Hot Dog di Pollo Amadori", packaging: 6, currentStock: 6, minStock: 1, previousWeekSales: { mon: 16, tue: 18, wed: 14, thu: 20, fri: 24, sat: 28, sun: 7 } }, { id: "ama19", name: "Pollo Disossato Amadori", packaging: 8, currentStock: 0, minStock: 1, previousWeekSales: { mon: 1, tue: 1, wed: 0, thu: 2, fri: 2, sat: 3, sun: 0 } }, { id: "ama20", name: "Fegatini Tacchino Amadori", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 2, tue: 3, wed: 1, thu: 4, fri: 4, sat: 5, sun: 0 } }, ] },
+         { name: "Fileni", products: [ { id: "fil01", name: "Petto di Pollo Fileni BIO", packaging: 6, currentStock: 4, minStock: 1, previousWeekSales: { mon: 7, tue: 8, wed: 6, thu: 9, fri: 11, sat: 12, sun: 2 } }, { id: "fil02", name: "Cosce di Pollo Fileni BIO", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 5, tue: 6, wed: 4, thu: 7, fri: 8, sat: 9, sun: 1 } }, { id: "fil03", name: "Fusi di Pollo Fileni BIO", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 4, tue: 5, wed: 3, thu: 6, fri: 7, sat: 8, sun: 1 } }, { id: "fil04", name: "Pollo Intero Fileni BIO", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 2, wed: 1, thu: 3, fri: 3, sat: 4, sun: 1 } }, { id: "fil05", name: "Hamburger Pollo Fileni BIO", packaging: 8, currentStock: 5, minStock: 1, previousWeekSales: { mon: 10, tue: 12, wed: 9, thu: 14, fri: 16, sat: 18, sun: 3 } }, { id: "fil06", name: "Petto di Pollo Fileni", packaging: 6, currentStock: 6, minStock: 1, previousWeekSales: { mon: 9, tue: 11, wed: 8, thu: 13, fri: 15, sat: 17, sun: 3 } }, { id: "fil07", name: "Ali di Pollo Fileni", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 12, tue: 14, wed: 10, thu: 16, fri: 19, sat: 22, sun: 4 } }, { id: "fil08", name: "Salsiccia di Pollo Fileni", packaging: 6, currentStock: 2, minStock: 1, previousWeekSales: { mon: 10, tue: 13, wed: 9, thu: 15, fri: 17, sat: 20, sun: 4 } }, { id: "fil09", name: "Cotoletta Pollo Fileni", packaging: 8, currentStock: 7, minStock: 1, previousWeekSales: { mon: 16, tue: 19, wed: 14, thu: 21, fri: 25, sat: 29, sun: 6 } }, { id: "fil10", name: "Arrosto Sempre Domenica Fileni", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 1, wed: 1, thu: 2, fri: 3, sat: 4, sun: 2 } }, { id: "fil11", name: "Burger Vegetale Fileni", packaging: 8, currentStock: 4, minStock: 1, previousWeekSales: { mon: 8, tue: 9, wed: 7, thu: 10, fri: 12, sat: 14, sun: 3 } }, { id: "fil12", name: "Cotoletta Vegetale Fileni", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 6, tue: 7, wed: 5, thu: 8, fri: 9, sat: 11, sun: 2 } }, { id: "fil13", name: "Macinato di Pollo Fileni", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 4, tue: 5, wed: 3, thu: 6, fri: 7, sat: 8, sun: 1 } }, { id: "fil14", name: "Sovracosce Pollo Fileni", packaging: 8, currentStock: 0, minStock: 1, previousWeekSales: { mon: 5, tue: 6, wed: 4, thu: 7, fri: 8, sat: 9, sun: 1 } }, { id: "fil15", name: "Pollo Ruspante Fileni", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 2, wed: 1, thu: 2, fri: 3, sat: 3, sun: 1 } }, { id: "fil16", name: "Spiedini Rustici Fileni", packaging: 6, currentStock: 2, minStock: 1, previousWeekSales: { mon: 4, tue: 6, wed: 3, thu: 7, fri: 8, sat: 10, sun: 2 } }, { id: "fil17", name: "Tagliata di Pollo Fileni", packaging: 8, currentStock: 3, minStock: 1, previousWeekSales: { mon: 6, tue: 7, wed: 5, thu: 8, fri: 9, sat: 11, sun: 2 } }, { id: "fil18", name: "Petto Tacchino Fileni", packaging: 6, currentStock: 2, minStock: 1, previousWeekSales: { mon: 5, tue: 6, wed: 4, thu: 7, fri: 8, sat: 9, sun: 1 } }, { id: "fil19", name: "Pollo a Busto Fileni", packaging: 8, currentStock: 4, minStock: 1, previousWeekSales: { mon: 2, tue: 3, wed: 2, thu: 4, fri: 4, sat: 5, sun: 1 } }, { id: "fil20", name: "Fegatini Pollo Fileni BIO", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 2, wed: 1, thu: 2, fri: 3, sat: 3, sun: 0 } }, ] },
+         { name: "Estuario", products: [ { id: "est01", name: "Faraona Estuario", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 1, tue: 2, wed: 1, thu: 3, fri: 4, sat: 5, sun: 2 } }, { id: "est02", name: "Galletto Vallespluga Estuario", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 4, tue: 5, wed: 3, thu: 6, fri: 7, sat: 8, sun: 2 } }, { id: "est03", name: "Cappone Estuario", packaging: 6, currentStock: 0, minStock: 1, previousWeekSales: { mon: 0, tue: 0, wed: 0, thu: 1, fri: 1, sat: 2, sun: 1 } }, { id: "est04", name: "Anatra Estuario", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 1, wed: 0, thu: 2, fri: 2, sat: 3, sun: 1 } }, { id: "est05", name: "Piccione Estuario", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 0, tue: 1, wed: 0, thu: 1, fri: 1, sat: 2, sun: 0 } }, { id: "est06", name: "Pollo Collo Nudo Estuario", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 2, tue: 3, wed: 1, thu: 4, fri: 4, sat: 5, sun: 1 } }, { id: "est07", name: "Petto Pollo Rurale Estuario", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 3, tue: 4, wed: 2, thu: 5, fri: 6, sat: 7, sun: 1 } }, { id: "est08", name: "Cosce Pollo Rurale Estuario", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 2, tue: 3, wed: 1, thu: 4, fri: 5, sat: 6, sun: 1 } }, { id: "est09", name: "Tacchino Nostrano Estuario", packaging: 6, currentStock: 0, minStock: 1, previousWeekSales: { mon: 0, tue: 0, wed: 0, thu: 1, fri: 1, sat: 1, sun: 0 } }, { id: "est10", name: "Fesa Tacchino Nostrano Estuario", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 2, tue: 2, wed: 1, thu: 3, fri: 3, sat: 4, sun: 1 } }, { id: "est11", name: "Rollè Faraona Estuario", packaging: 6, currentStock: 1, minStock: 1, previousWeekSales: { mon: 0, tue: 1, wed: 0, thu: 1, fri: 2, sat: 2, sun: 1 } }, { id: "est12", name: "Macinato Faraona Estuario", packaging: 8, currentStock: 0, minStock: 1, previousWeekSales: { mon: 0, tue: 0, wed: 1, thu: 1, fri: 1, sat: 2, sun: 0 } }, { id: "est13", name: "Spiedini Galletto Estuario", packaging: 6, currentStock: 2, minStock: 1, previousWeekSales: { mon: 1, tue: 2, wed: 1, thu: 3, fri: 3, sat: 4, sun: 1 } }, { id: "est14", name: "Salsiccia Anatra Estuario", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 1, wed: 0, thu: 2, fri: 2, sat: 3, sun: 0 } }, { id: "est15", name: "Oca Intera Estuario", packaging: 6, currentStock: 0, minStock: 1, previousWeekSales: { mon: 0, tue: 0, wed: 0, thu: 0, fri: 1, sat: 1, sun: 0 } }, { id: "est16", name: "Petto d'Oca Affumicato Estuario", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 1, tue: 1, wed: 1, thu: 2, fri: 2, sat: 3, sun: 1 } }, { id: "est17", name: "Coniglio Intero Estuario", packaging: 6, currentStock: 3, minStock: 1, previousWeekSales: { mon: 2, tue: 3, wed: 2, thu: 4, fri: 5, sat: 6, sun: 2 } }, { id: "est18", name: "Cosce Coniglio Estuario", packaging: 8, currentStock: 1, minStock: 1, previousWeekSales: { mon: 1, tue: 2, wed: 1, thu: 3, fri: 3, sat: 4, sun: 1 } }, { id: "est19", name: "Fegato Coniglio Estuario", packaging: 8, currentStock: 2, minStock: 1, previousWeekSales: { mon: 1, tue: 1, wed: 0, thu: 2, fri: 2, sat: 3, sun: 0 } }, { id: "est20", name: "Rollè Coniglio Estuario", packaging: 6, currentStock: 0, minStock: 1, previousWeekSales: { mon: 0, tue: 1, wed: 0, thu: 1, fri: 1, sat: 2, sun: 0 } }, ] }
+     ];
+
+    // --- ELEMENTI DOM ---
+    const supplierSelect = document.getElementById('supplier-select');
+    const dateInfoDiv = document.getElementById('date-info');
+    const goToStockBtn = document.getElementById('go-to-stock-btn');
+    const goToOrderBtn = document.getElementById('go-to-order-btn');
+    const orderView = document.getElementById('order-view');
+    const stockManagementView = document.getElementById('stock-management-view');
+    const productsTbody = document.getElementById('products-tbody');
+    const salesHistoryTbody = document.getElementById('sales-history-tbody');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const orderSummaryDiv = document.getElementById('order-summary');
+    const orderListUl = document.getElementById('order-list');
+    const stockTbody = document.getElementById('stock-tbody');
+    // Elementi per fullscreen logo
+    const personalLogoClickable = document.getElementById('personal-logo-clickable');
+    const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+    const fullscreenLogoImg = document.getElementById('fullscreen-logo-img');
+    const closeOverlayBtn = document.getElementById('close-overlay');
+
+
+    // --- STATO APPLICAZIONE ---
+    let currentView = 'order';
+
+    // --- COSTANTI ---
+    const dayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+    const displayDays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+    const displayDayNames = { mon: "Lun", tue: "Mar", wed: "Mer", thu: "Gio", fri: "Ven", sat: "Sab", sun: "Dom" };
+
+
+    // --- FUNZIONI (Complete - Invariate tranne dove indicato) ---
+    function populateSuppliersDropdown() { suppliersData.forEach(supplier => { const option = document.createElement('option'); option.value = supplier.name; option.textContent = supplier.name; supplierSelect.appendChild(option); }); }
+    function getRelevantSalesDays() { const today = new Date().getDay(); let leadTimeDays = [], coverageDays = [], orderDay = "", deliveryDay = ""; switch (today) { case 2: leadTimeDays = ['tue', 'wed']; coverageDays = ['fri', 'sat']; orderDay = "Martedì"; deliveryDay = "Giovedì"; break; case 4: leadTimeDays = ['thu', 'fri']; coverageDays = ['sun', 'mon', 'tue']; orderDay = "Giovedì"; deliveryDay = "Sabato"; break; case 6: leadTimeDays = ['sat', 'sun', 'mon']; coverageDays = ['wed', 'thu']; orderDay = "Sabato"; deliveryDay = "Martedì"; break; case 0: case 5: leadTimeDays = ['sat', 'sun', 'mon']; coverageDays = ['wed', 'thu']; orderDay = "Sabato"; deliveryDay = "Martedì"; break; case 1: leadTimeDays = ['tue', 'wed']; coverageDays = ['fri', 'sat']; orderDay = "Martedì"; deliveryDay = "Giovedì"; break; case 3: leadTimeDays = ['thu', 'fri']; coverageDays = ['sun', 'mon', 'tue']; orderDay = "Giovedì"; deliveryDay = "Sabato"; break; } return { leadTimeDays, coverageDays, orderDay, deliveryDay }; }
+    function updateDateTimeInfo() { const now = new Date(); const dayOfWeek = now.getDay(); const daysMap = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"]; const todayName = daysMap[dayOfWeek]; const { leadTimeDays, coverageDays, orderDay: currentOrderDay, deliveryDay: currentDeliveryDay } = getRelevantSalesDays(); let message = `Oggi è ${todayName}. `; const isOrderDay = (dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6); if (isOrderDay) { message += `<span class="highlight">Oggi (${currentOrderDay}) è giorno d'ordine</span> per la consegna di <span class="highlight">${currentDeliveryDay}</span>. `; } else { let nextActualOrderDay = ""; if (dayOfWeek === 0 || dayOfWeek === 1) nextActualOrderDay = "Martedì"; else if (dayOfWeek === 3) nextActualOrderDay = "Giovedì"; else if (dayOfWeek === 5) nextActualOrderDay = "Sabato"; const { deliveryDay: nextDeliveryDay } = getRelevantSalesDays(); message += `Il prossimo giorno d'ordine è <span class="highlight">${nextActualOrderDay}</span> (per consegna ${nextDeliveryDay}). `; } const leadTimeReadable = leadTimeDays.map(d => displayDayNames[d]).join(', '); const coverageReadable = coverageDays.map(d => displayDayNames[d]).join(', '); message += `Il calcolo usa le vendite (pezzi) di: <span class="highlight">${leadTimeReadable}</span> (consumo prima della consegna) e <span class="highlight">${coverageReadable}</span> (copertura dopo la consegna).`; dateInfoDiv.innerHTML = message; }
+    function displayProducts(supplierName) { const selectedSupplier = suppliersData.find(s => s.name === supplierName); productsTbody.innerHTML = ''; if (!selectedSupplier) return; const { coverageDays } = getRelevantSalesDays(); selectedSupplier.products.forEach(product => { const row = document.createElement('tr'); row.setAttribute('data-product-id', product.id); const predictedSalesPcsCoverage = coverageDays.reduce((sum, day) => sum + (product.previousWeekSales[day] || 0), 0); const predictedColliCoverage = product.packaging > 0 ? Math.ceil(predictedSalesPcsCoverage / product.packaging) : 0; row.innerHTML = `<td class="product-name-col">${product.name}</td><td class="numeric">${product.packaging}</td><td class="numeric">${product.currentStock}</td><td class="numeric">${product.minStock}</td><td class="numeric predicted-coverage-colli">${predictedColliCoverage}</td><td class="numeric suggested-order">-</td>`; productsTbody.appendChild(row); }); orderSummaryDiv.style.display = 'none'; orderListUl.innerHTML = ''; }
+    function displaySalesHistory(supplierName) { const selectedSupplier = suppliersData.find(s => s.name === supplierName); salesHistoryTbody.innerHTML = ''; if (!selectedSupplier) return; selectedSupplier.products.forEach(product => { const row = document.createElement('tr'); let cellsHtml = `<td class="product-name-col">${product.name}</td>`; displayDays.forEach(dayKey => { cellsHtml += `<td><input type="number" value="${product.previousWeekSales[dayKey] || 0}" min="0" data-product-id="${product.id}" data-day="${dayKey}" class="sales-input"/></td>`; }); row.innerHTML = cellsHtml; salesHistoryTbody.appendChild(row); }); }
+    function displayStockManagement(supplierName) { const selectedSupplier = suppliersData.find(s => s.name === supplierName); stockTbody.innerHTML = ''; if (!selectedSupplier) return; selectedSupplier.products.forEach(product => { const row = document.createElement('tr'); row.setAttribute('data-product-id', product.id); row.innerHTML = `<td class="product-name-col">${product.name}</td><td class="numeric">${product.packaging}</td><td class="numeric current-stock-display">${product.currentStock}</td><td class="numeric"><input type="number" value="${product.currentStock}" min="0" data-product-id="${product.id}" class="stock-input"/></td>`; stockTbody.appendChild(row); }); }
+    function handleSalesInputChange(event) { if (!event.target.classList.contains('sales-input')) return; const inputElement = event.target; const productId = inputElement.getAttribute('data-product-id'); const day = inputElement.getAttribute('data-day'); let newValue = parseInt(inputElement.value, 10); if (isNaN(newValue) || newValue < 0) { newValue = 0; inputElement.value = newValue; } const supplierName = supplierSelect.value; updateDailySalesData(supplierName, productId, day, newValue); updatePredictedCoverageColliCell(supplierName, productId); }
+    function handleStockInputChange(event) { if (!event.target.classList.contains('stock-input')) return; const inputElement = event.target; const productId = inputElement.getAttribute('data-product-id'); let newStockValue = parseInt(inputElement.value, 10); if (isNaN(newStockValue) || newStockValue < 0) { newStockValue = 0; inputElement.value = newStockValue; } const supplierName = supplierSelect.value; const updated = updateStockData(supplierName, productId, newStockValue); if (updated) { const row = stockTbody.querySelector(`tr[data-product-id="${productId}"]`); if (row) { const displayCell = row.querySelector('.current-stock-display'); if (displayCell) { displayCell.textContent = newStockValue; } } } }
+    function updatePredictedCoverageColliCell(supplierName, productId) { const productRow = productsTbody.querySelector(`tr[data-product-id="${productId}"]`); if (!productRow) return; const supplier = suppliersData.find(s => s.name === supplierName); const product = supplier?.products.find(p => p.id === productId); if (!product || product.packaging <= 0) return; const { coverageDays } = getRelevantSalesDays(); const predictedSalesPcsCoverage = coverageDays.reduce((sum, d) => sum + (product.previousWeekSales[d] || 0), 0); const predictedColliCoverage = Math.ceil(predictedSalesPcsCoverage / product.packaging); const predictedCoverageColliCell = productRow.querySelector('.predicted-coverage-colli'); if (predictedCoverageColliCell) { predictedCoverageColliCell.textContent = predictedColliCoverage; } }
+    function updateDailySalesData(supplierName, productId, day, newValuePcs) { const supplier = suppliersData.find(s => s.name === supplierName); const product = supplier?.products.find(p => p.id === productId); if (product?.previousWeekSales) { product.previousWeekSales[day] = newValuePcs; } }
+    function updateStockData(supplierName, productId, newStockValue) { const supplier = suppliersData.find(s => s.name === supplierName); const product = supplier?.products.find(p => p.id === productId); if (product) { if (product.currentStock !== newStockValue) { product.currentStock = newStockValue; return true; } } return false; }
+    function syncSalesDataFromInputs() { const supplierName = supplierSelect.value; const supplier = suppliersData.find(s => s.name === supplierName); if (!supplier) return; const inputs = salesHistoryTbody.querySelectorAll('.sales-input'); inputs.forEach(inputElement => { const productId = inputElement.getAttribute('data-product-id'); const day = inputElement.getAttribute('data-day'); let valuePcs = parseInt(inputElement.value, 10); if (isNaN(valuePcs) || valuePcs < 0) valuePcs = 0; const product = supplier.products.find(p => p.id === productId); if (product?.previousWeekSales) { product.previousWeekSales[day] = valuePcs; } }); }
+    function calculateReorder() { syncSalesDataFromInputs(); const selectedSupplierName = supplierSelect.value; const selectedSupplier = suppliersData.find(s => s.name === selectedSupplierName); orderListUl.innerHTML = ''; let itemsToOrderCount = 0; if (!selectedSupplier) return; const { leadTimeDays, coverageDays } = getRelevantSalesDays(); const leadTimeReadable = leadTimeDays.map(d => displayDayNames[d]).join(','); const coverageReadable = coverageDays.map(d => displayDayNames[d]).join(','); selectedSupplier.products.forEach(product => { const packaging = product.packaging; if (packaging <= 0) { return; } const currentStockColli = product.currentStock; const minStockColli = product.minStock; const predictedSalesPcsLeadTime = leadTimeDays.reduce((sum, day) => sum + (product.previousWeekSales[day] || 0), 0); const predictedColliLeadTime = Math.ceil(predictedSalesPcsLeadTime / packaging); const predictedSalesPcsCoverage = coverageDays.reduce((sum, day) => sum + (product.previousWeekSales[day] || 0), 0); const predictedColliCoverage = Math.ceil(predictedSalesPcsCoverage / packaging); const totalNeedColli = minStockColli + predictedColliLeadTime + predictedColliCoverage; const rawOrderQtyColli = totalNeedColli - currentStockColli; const finalOrderQtyColli = Math.max(0, Math.ceil(rawOrderQtyColli)); const row = productsTbody.querySelector(`tr[data-product-id="${product.id}"]`); if (row) { row.querySelector('.predicted-coverage-colli').textContent = predictedColliCoverage; const suggestedCell = row.querySelector('.suggested-order'); suggestedCell.textContent = finalOrderQtyColli; suggestedCell.classList.toggle('positive-order', finalOrderQtyColli > 0); } if (finalOrderQtyColli > 0) { itemsToOrderCount++; const listItem = document.createElement('li'); listItem.innerHTML = `<strong>${product.name}</strong> - Qta: <span class="positive-order">${finalOrderQtyColli}</span> c <small>Giac: ${currentStockColli}|Min: ${minStockColli}|Lead(${leadTimeReadable}): ${predictedColliLeadTime}c(${predictedSalesPcsLeadTime}p)|Cop(${coverageReadable}): ${predictedColliCoverage}c(${predictedSalesPcsCoverage}p)|Need: ${totalNeedColli}c|Imb: ${packaging}</small>`; orderListUl.appendChild(listItem); } }); orderSummaryDiv.style.display = 'block'; if (itemsToOrderCount === 0) { orderListUl.innerHTML = `<li>Nessun riordino per ${selectedSupplierName} (vend. ${leadTimeReadable} + ${coverageReadable}).</li>`; } }
+    function switchToStockView() { currentView = 'stock'; orderView.style.display = 'none'; stockManagementView.style.display = 'block'; goToStockBtn.style.display = 'none'; goToOrderBtn.style.display = 'block'; displayStockManagement(supplierSelect.value); }
+    function switchToOrderView() { currentView = 'order'; stockManagementView.style.display = 'none'; orderView.style.display = 'block'; goToStockBtn.style.display = 'block'; goToOrderBtn.style.display = 'none'; const currentSupplier = supplierSelect.value; displayProducts(currentSupplier); displaySalesHistory(currentSupplier); }
+
+    // --- EVENT LISTENERS ---
+    supplierSelect.addEventListener('change', (event) => { const newSupplier = event.target.value; if (currentView === 'order') { displayProducts(newSupplier); displaySalesHistory(newSupplier); } else { displayStockManagement(newSupplier); } });
+    salesHistoryTbody.addEventListener('change', handleSalesInputChange);
+    stockTbody.addEventListener('change', handleStockInputChange);
+    calculateBtn.addEventListener('click', calculateReorder);
+    goToStockBtn.addEventListener('click', switchToStockView);
+    goToOrderBtn.addEventListener('click', switchToOrderView);
+
+    // Listener per aprire overlay fullscreen
+    personalLogoClickable.addEventListener('click', (e) => {
+        e.preventDefault(); // Previene comportamento link (se fosse un <a>)
+        fullscreenLogoImg.src = personalLogoClickable.src; // Imposta src dell'immagine grande
+        fullscreenOverlay.style.display = 'flex'; // Mostra overlay
+    });
+
+    // Listener per chiudere overlay (pulsante X)
+    closeOverlayBtn.addEventListener('click', () => {
+        fullscreenOverlay.style.display = 'none';
+    });
+
+    // Listener per chiudere overlay (click sullo sfondo)
+    fullscreenOverlay.addEventListener('click', (e) => {
+        // Chiudi solo se il click è sull'overlay stesso, non sull'immagine contenuta
+        if (e.target === fullscreenOverlay) {
+            fullscreenOverlay.style.display = 'none';
+        }
+    });
+
+
+    // --- INIZIALIZZAZIONE ---
+    document.addEventListener('DOMContentLoaded', () => {
+         populateSuppliersDropdown();
+         updateDateTimeInfo();
+         if (suppliersData.length > 0) {
+             const initialSupplier = suppliersData[0].name;
+             supplierSelect.value = initialSupplier;
+             switchToOrderView(); // Parte dalla vista ordine
+         } else {
+              // Gestione caso senza fornitori
+              orderView.style.display = 'block';
+              goToStockBtn.style.display = 'block';
+              goToOrderBtn.style.display = 'none';
+         }
+     });
+
+</script>
+
+</body>
+</html>
