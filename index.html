@@ -5,112 +5,181 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Armillotta Lorenzo - Macelleria & AI</title>
 
-    <!-- Importazione Google Font (Lato) -->
+    <!-- Importazione Google Font (Montserrat per i titoli, Lato per il testo) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Stile Generale */
+        /* --- Stile Splash Screen --- */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #121212; /* Sfondo nero profondo */
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease-out; /* Transizione per la dissolvenza */
+        }
+
+        #splash-screen img {
+            max-width: 90%;
+            max-height: 90%;
+            width: 350px; /* Dimensione del logo */
+        }
+        
+        /* Classe per nascondere lo splash screen */
+        #splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none; /* Rende non cliccabile dopo la dissolvenza */
+        }
+
+
+        /* --- Nuovo Stile "Butcher-Tech" --- */
+
+        :root {
+            --dark-bg: #1a1a1a;        /* Sfondo principale (carbone) */
+            --light-bg: #2c2c2c;       /* Sfondo del container (ardesia) */
+            --accent-red: #c0392b;     /* Rosso carne/fuoco */
+            --accent-red-hover: #e74c3c; /* Rosso più vivo per hover */
+            --text-light: #f0f0f0;     /* Testo principale (bianco sporco) */
+            --text-medium: #bdc3c7;    /* Testo secondario (grigio chiaro) */
+            --border-color: #444;      /* Colore dei bordi */
+        }
+
         body {
-            font-family: 'Lato', sans-serif; /* Nuovo font */
+            font-family: 'Lato', sans-serif;
             line-height: 1.7;
             margin: 0;
             padding: 0;
-            background-color: #f8f8f8; /* Sfondo leggermente grigio */
-            color: #333; /* Colore testo principale scuro */
+            background-color: var(--dark-bg);
+            /* Aggiungiamo una griglia tech sottile sullo sfondo */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--text-light);
         }
 
         .container {
-            max-width: 960px; /* Larghezza massima contenuto */
-            margin: 20px auto; /* Centra il contenuto */
-            padding: 0 20px;
-            background-color: #ffffff; /* Sfondo bianco per il contenuto */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Ombra delicata */
-            border-radius: 8px; /* Angoli arrotondati */
+            max-width: 960px;
+            margin: 40px auto;
+            padding: 20px 40px;
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(192, 57, 43, 0.2); /* Ombra scura + alone rosso */
         }
 
         /* Header / Banner con Logo */
         header {
-            text-align: center; /* Centra il contenuto dell'header */
-            padding: 30px 20px; /* Spazio interno */
-            border-bottom: 1px solid #eee; /* Linea separatrice sottile */
-            margin-bottom: 30px; /* Spazio sotto l'header */
+            text-align: center;
+            padding: 30px 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 40px;
         }
 
         header img.logo {
-            max-width: 300px; /* Limita la larghezza massima del logo */
-            height: auto; /* Mantiene le proporzioni */
-            margin-bottom: 15px; /* Spazio sotto il logo */
-            display: block; /* Necessario per centrare con margin auto */
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 250px;
+            height: auto;
+            margin-bottom: 20px;
+            /* Per il logo JPG su sfondo scuro, un filtro può aiutare */
+            /* Se hai una versione PNG trasparente, rimuovi la riga 'filter' */
+            /* filter: invert(1) drop-shadow(0 0 5px var(--accent-red)); */
+            border-radius: 50%; /* Rende il logo tondo se è quadrato */
+            border: 3px solid var(--accent-red);
+            box-shadow: 0 0 15px var(--accent-red);
         }
 
         header h1 {
-            color: #2c3e50; /* Blu/Grigio scuro per il titolo */
-            margin-top: 0; /* Rimuove margine superiore predefinito */
-            margin-bottom: 5px;
-            font-weight: 700; /* Grassetto */
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-light);
+            margin: 0 0 10px 0;
+            font-weight: 700;
+            font-size: 2.5em;
         }
 
         header p {
-            color: #7f8c8d; /* Grigio più chiaro per il sottotitolo */
-            font-size: 1.1em;
-            font-weight: 300; /* Leggero */
-            margin-top: 0; /* Rimuove margine superiore predefinito */
+            color: var(--text-medium);
+            font-size: 1.2em;
+            font-weight: 300;
+            margin: 0;
         }
 
         /* Contenuto Principale */
         main {
-            padding: 20px 0; /* Aggiunto padding verticale */
+            padding: 20px 0;
         }
 
         section {
-            margin-bottom: 40px; /* Più spazio tra le sezioni */
+            margin-bottom: 50px;
         }
 
         h2 {
-            color: #34495e; /* Blu/Grigio leggermente più chiaro per H2 */
-            border-bottom: 2px solid #e0e0e0; /* Sottolineatura H2 */
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-light);
+            border-bottom: 2px solid var(--accent-red); /* Sottolineatura rossa d'accento */
             padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-weight: 400; /* Normale */
+            margin-bottom: 25px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
         p {
             margin-bottom: 15px;
+            color: var(--text-medium);
         }
 
-        /* Stile per la lista dei link */
+        /* Stile per la lista dei link (pulsanti tech) */
         ul.link-list {
             list-style: none;
             padding: 0;
-            margin: 0; /* Rimuovi margini predefiniti */
+            margin: 0;
         }
 
         ul.link-list li {
-            margin-bottom: 12px;
-            background-color: #ecf0f1; /* Sfondo leggero per ogni item */
-            border-radius: 5px;
-            transition: background-color 0.3s ease; /* Transizione al passaggio */
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            overflow: hidden; /* Per contenere gli effetti */
         }
 
         ul.link-list li:hover {
-            background-color: #dadedf; /* Sfondo leggermente più scuro al hover */
+            border-color: var(--accent-red-hover);
+            transform: translateY(-3px) scale(1.01); /* Leggero sollevamento */
+            box-shadow: 0 5px 15px rgba(192, 57, 43, 0.3);
         }
 
-        ul.link-list a {
-            display: block; /* Rende cliccabile tutta l'area */
-            padding: 12px 18px;
+        ul.link-list a, .audio-container {
+            display: block;
+            padding: 15px 20px;
             text-decoration: none;
-            color: #2980b9; /* Blu per i link */
-            font-weight: 700; /* Grassetto per i link */
-            transition: color 0.3s ease;
+            color: var(--accent-red);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            transition: color 0.3s ease, background-color 0.3s ease;
+        }
+        
+        ul.link-list a:hover {
+            color: var(--text-light);
+            background-color: rgba(192, 57, 43, 0.2);
         }
 
-        ul.link-list a:hover {
-            color: #1c5a85; /* Blu più scuro al hover */
+        .audio-container {
+            color: var(--accent-red); /* Mantiene il colore del titolo anche per il player */
+        }
+        
+        audio {
+            width: 100%;
+            margin-top: 15px;
+            /* Stile base per il player audio (la personalizzazione avanzata è limitata) */
+            filter: invert(1) sepia(1) saturate(5) hue-rotate(320deg);
         }
 
         /* Footer */
@@ -118,24 +187,27 @@
             text-align: center;
             margin-top: 40px;
             padding: 20px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--border-color);
             font-size: 0.9em;
-            color: #95a5a6; /* Grigio chiaro */
+            color: #777;
         }
-
     </style>
 </head>
 <body>
 
+    <!-- ****** INIZIO SPLASH SCREEN CON LOGO ****** -->
+    <div id="splash-screen">
+        <img src="LOGOALGIF.gif" alt="Logo Armillotta Lorenzo GIF">
+    </div>
+    <!-- ****** FINE SPLASH SCREEN CON LOGO ****** -->
+
     <div class="container">
 
-        <!-- ****** INIZIO NUOVO HEADER CON LOGO ****** -->
         <header>
             <img src="logo.jpg" alt="Logo Armillotta Lorenzo" class="logo">
             <h1>Benvenuto nel mondo di Armillotta Lorenzo</h1>
             <p>Macellaio provetto di terzo livello & Appassionato di Intelligenza Artificiale</p>
         </header>
-        <!-- ****** FINE NUOVO HEADER CON LOGO ****** -->
 
         <main>
             <section>
@@ -149,9 +221,7 @@
                 <h2>Esplora il Sito</h2>
                 <p>Naviga tra le sezioni per scoprire di più:</p>
 
-                <!-- Ho aggiunto la classe "link-list" per applicare lo stile specifico -->
                 <ul class="link-list">
-                    <!-- ****** IMPORTANTE: Modifica i link qui sotto! ****** -->
                     <li>
                         <a href="Tagli Anatomici con chef interattivo.html">Tagli Anatomici con Chef Interattivo</a>
                     </li>
@@ -162,22 +232,21 @@
                         <a href="Riordino Automatico Finale.html">Riordino Automatico</a>
                     </li>
                     <li>
-                        <div style="padding: 12px 18px; font-weight: 700; color: #34495e;">
+                        <div class="audio-container">
                             Ascolta il Podcast sulla Carne
-                            <audio controls src="Podcast Carne.mp3" style="width: 100%; margin-top: 10px;">
+                            <audio controls src="Podcast Carne.mp3">
                                 Il tuo browser non supporta l'elemento audio.
                             </audio>
                         </div>
                     </li>
                     <li>
-                        <div style="padding: 12px 18px; font-weight: 700; color: #34495e;">
+                        <div class="audio-container">
                             Ascolta PodSpar - Puntata 1
-                            <audio controls src="PodSpar Puntata 1.wav" style="width: 100%; margin-top: 10px;">
+                            <audio controls src="PodSpar Puntata 1.wav">
                                 Il tuo browser non supporta l'elemento audio.
                             </audio>
                         </div>
                     </li>
-                    <!-- Aggiungi altri link qui se necessario, seguendo lo stesso formato -->
                 </ul>
             </section>
         </main>
@@ -188,5 +257,18 @@
 
     </div> <!-- Fine .container -->
 
+    <!-- ****** SCRIPT PER GESTIRE LO SPLASH SCREEN ****** -->
+    <script>
+        // Attende che l'intera pagina, incluse le immagini, sia caricata
+        window.addEventListener('load', function() {
+            const splashScreen = document.getElementById('splash-screen');
+            
+            // Imposta un timer per nascondere lo splash screen dopo 3 secondi (3000 millisecondi)
+            setTimeout(() => {
+                splashScreen.classList.add('hidden');
+            }, 3000); // Puoi cambiare la durata qui (es. 2500 per 2.5 secondi)
+        });
+    </script>
+
 </body>
-                            </html>
+</html>
