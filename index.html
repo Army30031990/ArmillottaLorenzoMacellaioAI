@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- FontAwesome per le icone (Mannaia, Libro, Ingranaggi, Microfono) -->
+    <!-- FontAwesome per le icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -68,23 +68,20 @@
         /* --- Header --- */
         header {
             text-align: center;
-            padding-top: 40px;
+            padding-top: 20px;
             margin-bottom: 20px;
         }
 
-        .logo-container {
-            display: inline-block;
-            position: relative;
+        /* Nuova classe per il Banner */
+        .banner-img {
+            width: 100%;
+            max-height: 400px; /* Limite altezza per non occupare tutto lo schermo */
+            object-fit: cover; /* Taglia l'immagine se necessario per riempire lo spazio */
+            border-radius: 15px;
+            border: 2px solid var(--border-highlight);
+            box-shadow: 0 10px 30px var(--accent-glow);
             margin-bottom: 20px;
-        }
-
-        .logo {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent);
-            box-shadow: 0 0 25px var(--accent-glow);
+            display: block;
         }
 
         header h1 {
@@ -256,9 +253,12 @@
     <div class="container">
 
         <header>
-            <div class="logo-container">
-                <img src="logo.jpg" alt="Logo Armillotta Lorenzo" class="logo">
-            </div>
+            <!-- BANNER IMMAGINE -->
+            <img src="https://www.dropbox.com/scl/fi/vx5dvgtgra1qz7w1geu0e/Generated-Image-December-01-2025-10_44AM.png?rlkey=wvq3xkbf7n3i9sf3iro3xzoe3&st=9r2uidvq&dl=1" 
+                 alt="Banner Armillotta Lorenzo" 
+                 class="banner-img">
+            
+            <!-- TITOLI -->
             <h1>Benvenuto nel mondo di<br>Armillotta Lorenzo</h1>
             <p>Macellaio provetto di terzo livello & Appassionato di Intelligenza Artificiale</p>
         </header>
@@ -363,4 +363,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
